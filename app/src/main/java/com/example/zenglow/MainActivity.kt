@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.zenglow.data.GroupDatabase
 import com.example.zenglow.ui.theme.ZenGlowTheme
+import com.example.zenglow.viewModels.DeviceViewModel
+import com.example.zenglow.viewModels.GroupViewModel
 
 class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
@@ -23,7 +25,7 @@ class MainActivity : ComponentActivity() {
             "group.db"
         ).build()
     }
-    private val viewModel by viewModels<GroupViewModel>(
+    private val groupViewModel by viewModels<GroupViewModel>(
         factoryProducer = {
             object : ViewModelProvider.Factory {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -33,13 +35,30 @@ class MainActivity : ComponentActivity() {
         }
     )
 
+    private val deviceViewModel by viewModels<DeviceViewModel>(
+        factoryProducer = {
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return DeviceViewModel(db.dao) as T
+                }
+            }
+        }
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ZenGlowTheme {
-                val state by viewModel. state.collectAsState()
+                val groupState by groupViewModel. state.collectAsState()
+                val deviceState by deviceViewModel.state.collectAsState()
                 navController = rememberNavController()
-                SetupNavGraph(navController = navController, state = state, onEvent = viewModel::onEvent)
+                SetupNavGraph(
+                    navController = navController,
+                    groupState = groupState,
+                    deviceState = deviceState,
+                    onGroupEvent = groupViewModel::onEvent,
+                    onDeviceEvent = deviceViewModel::onEvent
+                )
             }
         }
     }

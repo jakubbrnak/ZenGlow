@@ -1,6 +1,6 @@
-package com.example.zenglow
+package com.example.zenglow.states
 
-import com.example.zenglow.data.Group
+import com.example.zenglow.data.entities.Group
 
 data class GroupState(
     val groups: List<Group> = emptyList(),

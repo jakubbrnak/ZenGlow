@@ -1,9 +1,11 @@
-package com.example.zenglow
+package com.example.zenglow.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.zenglow.data.Group
+import com.example.zenglow.data.entities.Group
 import com.example.zenglow.data.GroupDao
+import com.example.zenglow.events.GroupEvent
+import com.example.zenglow.states.GroupState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
@@ -84,7 +86,7 @@ class GroupViewModel(
 
                 val group = Group(
                     name = name,
-                    id = event.group.id
+                    groupId = event.group.groupId
                 )
 
                 viewModelScope.launch {
@@ -97,9 +99,6 @@ class GroupViewModel(
                 ) }
 
             }
-
-
-            else -> {}
         }
     }
 }

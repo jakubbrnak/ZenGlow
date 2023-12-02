@@ -1,7 +1,6 @@
-package com.example.zenglow
+package com.example.zenglow.events
 
-import android.graphics.pdf.PdfDocument.Page
-import com.example.zenglow.data.Group
+import com.example.zenglow.data.entities.Group
 
 sealed interface GroupEvent {
     object SaveGroup: GroupEvent

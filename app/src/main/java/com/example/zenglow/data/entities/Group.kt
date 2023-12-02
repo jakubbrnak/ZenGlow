@@ -1,4 +1,4 @@
-package com.example.zenglow.data
+package com.example.zenglow.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -7,5 +7,5 @@ import androidx.room.PrimaryKey
 data class Group(
     val name: String,
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0
+    val groupId: Int = 0
 )

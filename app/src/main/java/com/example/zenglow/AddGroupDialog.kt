@@ -13,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.zenglow.events.GroupEvent
+import com.example.zenglow.states.GroupState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
