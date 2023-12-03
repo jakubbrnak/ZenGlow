@@ -8,6 +8,7 @@ import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.states.DeviceState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -16,12 +17,14 @@ import kotlinx.coroutines.launch
 class DeviceViewModel(
     private val dao: GroupDao
 ): ViewModel() {
-    private val _devices = dao.readAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    private val _devices = dao.readAllDevices().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    private val _freeDevices = dao.getDevicesWithoutGroup().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
     //Mutable state for the backend
     private val _state = MutableStateFlow(DeviceState())
     //Immutable state for the frontend
-    val state = combine(_state, _devices) {state, devices ->
+    val state = combine(_state, _devices, _freeDevices) {state, devices, freeDevices ->
         state.copy(devices = devices)
+        state.copy(freeDevices = freeDevices)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DeviceState())
 
     fun onEvent(event: DeviceEvent) {
@@ -81,11 +84,10 @@ class DeviceViewModel(
                 )}
             }
 
-            is DeviceEvent.RenameDevice ->{
-                val displayName = state.value.displayName
+            is DeviceEvent.UpdateDevice ->{
 
                 val device = Device(
-                    displayName = displayName,
+                    displayName = event.device.displayName,
                     deviceId = event.device.deviceId,
                     groupId = event.device.groupId
                 )
@@ -95,7 +97,6 @@ class DeviceViewModel(
                 }
 
                 _state.update { it.copy(
-                    isRenaming =  -1,
                     displayName = ""
                 ) }
 

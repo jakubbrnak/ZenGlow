@@ -23,10 +23,18 @@ interface GroupDao {
 
     @Transaction
     @Query("SELECT * FROM 'group'")
-    fun readAll(): Flow<List<Group>>
+    fun readAllGroups(): Flow<List<GroupWithDevices>>
 
     @Transaction
     @Query("SELECT * FROM 'group' WHERE groupId = :groupId")
     suspend fun getGroupWithDevices(groupId: Int): List<GroupWithDevices>
+
+    @Transaction
+    @Query("SELECT * FROM 'device'")
+    fun readAllDevices(): Flow<List<Device>>
+
+    @Transaction
+    @Query("SELECT * FROM 'device' WHERE groupId = -1")
+    fun getDevicesWithoutGroup(): Flow<List<Device>>
 }
 

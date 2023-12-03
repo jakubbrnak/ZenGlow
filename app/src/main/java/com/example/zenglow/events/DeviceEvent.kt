@@ -11,5 +11,5 @@ sealed interface DeviceEvent {
 
     data class ShowRenameDialog(val page: Int): DeviceEvent
     object HideRenameDialog: DeviceEvent
-    data class RenameDevice(val device: Device): DeviceEvent
+    data class UpdateDevice(val device: Device): DeviceEvent
 }

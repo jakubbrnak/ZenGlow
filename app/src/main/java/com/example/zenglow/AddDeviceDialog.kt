@@ -12,19 +12,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
-import com.example.zenglow.states.GroupState
+import com.example.zenglow.states.DeviceState
 
 @Composable
-fun AddGroupDialog(
-    state: GroupState,
-    onEvent: (GroupEvent) -> Unit,
+fun AddDeviceDialog(
+    state: DeviceState,
+    onEvent: (DeviceEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
         modifier = modifier,
         onDismissRequest = {
-           onEvent(GroupEvent.HideDialog)
+            onEvent(DeviceEvent.HideDialog)
         },
         confirmButton = {
             Box(
@@ -32,24 +33,24 @@ fun AddGroupDialog(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Button(onClick = {
-                    onEvent(GroupEvent.SaveGroup)
+                    onEvent(DeviceEvent.SaveDevice)
                 }) {
-                  Text(text="Save group")
+                    Text(text="Save device")
                 }
             }
         },
-        title = { Text(text= "Add Group")},
+        title = { Text(text= "Add Device")},
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 TextField(
-                    value = state.name,
+                    value = state.displayName,
                     onValueChange = {
-                            onEvent(GroupEvent.SetName(it))
+                        onEvent(DeviceEvent.SetName(it))
                     },
                     placeholder = {
-                        Text(text = "Group name")
+                        Text(text = "Device name")
                     }
                 )
             }

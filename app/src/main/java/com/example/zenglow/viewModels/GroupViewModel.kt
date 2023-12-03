@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class GroupViewModel(
     private val dao: GroupDao
 ): ViewModel() {
-    private val _groups = dao.readAll().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+    private val _groups = dao.readAllGroups().stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
     //Mutable state for the backend
     private val _state = MutableStateFlow(GroupState())
     //Immutable state for the frontend
