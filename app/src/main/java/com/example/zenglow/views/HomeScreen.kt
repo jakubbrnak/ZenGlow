@@ -28,19 +28,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -51,6 +55,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
@@ -294,23 +299,60 @@ fun GroupDeviceItem(
 ) {
     Card(
         modifier
-            .padding(10.dp)
-            .wrapContentSize()
-            .clickable {
-            },
+            .padding(5.dp)
+            .wrapContentSize(),
+//            .clickable {
+//            },
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
         elevation = CardDefaults.cardElevation(10.dp)
     ) {
-        Row(
-            modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Icon(Icons.Outlined.List, "Add New Device To Group")
-            Text(text = device.displayName)
+        Column() {
+//            Row(
+//                modifier.fillMaxWidth(),
+//                verticalAlignment = Alignment.Top,
+//                horizontalArrangement = Arrangement.SpaceEvenly
+//            ) {
+//                Icon(Icons.Outlined.List, "Add New Device To Group")
+//                Text(text = device.displayName)
+//                var checked by remember { mutableStateOf(true) }
+//                Switch(
+//                    checked = checked,
+//                    onCheckedChange = {
+//                        checked = it
+//                    }
+//                )
+//            }
+            ListItem(
+                headlineContent = {Text(device.displayName)},
+                leadingContent = {
+                    Icon(Icons.Filled.Menu, contentDescription = "Bulbicon")
+                },
+                trailingContent = {
+                    var checked by remember { mutableStateOf(true) }
+                    Switch(
+                        modifier = Modifier.scale(0.8f),
+                        checked = checked,
+                        onCheckedChange = {
+                            checked = it
+                        }
+                    )
+                }
+            )
+            Row(){
+                var value by remember { mutableStateOf(0f) }
+                Slider(
+                    value = value ,
+                    onValueChange = {value = it},
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(25.dp)
+                )
+                Icon(Icons.Outlined.Settings, "Open device detail page")
+            }
         }
+
     }
 }
 
