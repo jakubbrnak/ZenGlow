@@ -22,9 +22,8 @@ class DeviceViewModel(
     //Mutable state for the backend
     private val _state = MutableStateFlow(DeviceState())
     //Immutable state for the frontend
-    val state = combine(_state, _devices, _freeDevices) {state, devices, freeDevices ->
-        state.copy(devices = devices)
-        state.copy(freeDevices = freeDevices)
+    val state = combine(_state, _devices, _freeDevices) { state, devices, freeDevices ->
+        state.copy(devices = devices, freeDevices = freeDevices)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DeviceState())
 
     fun onEvent(event: DeviceEvent) {

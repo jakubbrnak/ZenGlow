@@ -86,6 +86,8 @@ fun DeviceConfigScrollContent(
     state: DeviceState,
     deviceId: Int,
     onEvent: (DeviceEvent) -> Unit) {
+
+    val deviceById: Device? = state.devices.find { it.deviceId == deviceId }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -94,11 +96,13 @@ fun DeviceConfigScrollContent(
         horizontalAlignment = Alignment.CenterHorizontally,
 
         ) {
-        Text(
-            text = "device config",
-            color = MaterialTheme.colorScheme.secondary,
-            fontSize = MaterialTheme.typography.bodyLarge.fontSize
-        )
+        if (deviceById != null) {
+            Text(
+                text = "${deviceById.displayName}",
+                color = MaterialTheme.colorScheme.secondary,
+                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+            )
+        }
 
     }
 }
