@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -46,17 +46,17 @@ import com.example.zenglow.states.DeviceState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewDeviceScreen(
+fun DeviceConfigScreen(
     navController: NavController,
     state: DeviceState,
     onEvent: (DeviceEvent) -> Unit
 ) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    var groupId = -1
-    navBackStackEntry?.arguments?.getInt("groupId")?.let {selectedGroupId ->
-        groupId = selectedGroupId
+    var deviceId = -1
+    navBackStackEntry?.arguments?.getInt("deviceId")?.let {selectedGroupId ->
+        deviceId = selectedGroupId
     } ?: run {
-       groupId = -1
+        deviceId = -1
     }
     Scaffold(
         topBar = {
@@ -67,7 +67,7 @@ fun NewDeviceScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate(Screen.Home.route) }) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Localized description"
                         )
                     }
@@ -75,16 +75,16 @@ fun NewDeviceScreen(
             )
         }
     ) { innerPadding ->
-        NewDeviceScrollContent(innerPadding, navController, state, groupId, onEvent)
+        DeviceConfigScrollContent(innerPadding, navController, state, deviceId, onEvent)
     }
 }
 
 @Composable
-fun NewDeviceScrollContent(
+fun DeviceConfigScrollContent(
     innerPadding: PaddingValues,
     navController: NavController,
     state: DeviceState,
-    groupId: Int,
+    deviceId: Int,
     onEvent: (DeviceEvent) -> Unit) {
     Column(
         modifier = Modifier
@@ -93,75 +93,12 @@ fun NewDeviceScrollContent(
             .background(Color(0xEC, 0xEC, 0xEC)),
         horizontalAlignment = Alignment.CenterHorizontally,
 
-    ) {
+        ) {
         Text(
-            text = "Available devices",
+            text = "device config",
             color = MaterialTheme.colorScheme.secondary,
-            fontSize = MaterialTheme.typography.bodyMedium.fontSize
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize
         )
-        // Display list of devices
-        LazyColumn(contentPadding = PaddingValues(16.dp)) {
-            items(state.freeDevices.size) { device->
-                DeviceItem(
-                    modifier = Modifier,
-                    device = state.freeDevices[device],
-                    navController = navController,
-                    groupId = groupId,
-                    onEvent = onEvent
-                )
-            }
-        }
-        FloatingActionButton(onClick = {
-            onEvent(DeviceEvent.ShowDialog)
-        }) {
-            Row{
-                Icon(Icons.Filled.Add, "Add New Device")
-                Text(text = "Add device manually")
-            }
-        }
-        if(state.isAddingDevice) {
-            AddDeviceDialog(state = state, onEvent = onEvent)
-        }
-    }
-}
 
-@Composable
-fun DeviceItem(
-    modifier: Modifier,
-    device: Device,
-    navController: NavController,
-    groupId: Int,
-    onEvent: (DeviceEvent) -> Unit
-) {
-        ListItem(
-            modifier = Modifier
-                .height(80.dp)
-                .clickable {
-                    //Add groupId to device, then navigate back to home screen
-                    val updatedDevice = device.copy(groupId = groupId)
-                    onEvent(DeviceEvent.UpdateDevice(updatedDevice))
-                    navController.navigate(Screen.Home.route)
-                },
-            headlineContent = {Text(device.displayName)},
-            leadingContent = {
-                Box(
-                    modifier = Modifier
-                        .border(1.dp, Color.Black, CircleShape)
-                        .clip(CircleShape)
-                        .background(color = Color(0xfffcba03))
-                        .size(45.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.emoji_objects),
-                        contentDescription = "bulbIcon",
-                        modifier = Modifier
-                            .size(36.dp)
-                    )
-                }
-            },
-            trailingContent = {
-                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, "add")
-            }
-        )
+    }
 }

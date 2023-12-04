@@ -1,8 +1,10 @@
 package com.example.zenglow.views
 
+import android.graphics.Color.argb
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -18,24 +20,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.List
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -67,7 +64,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.ColorUtils
 import androidx.navigation.NavController
+import com.example.zenglow.AddDeviceDialog
 import com.example.zenglow.AddGroupDialog
 import com.example.zenglow.R
 import com.example.zenglow.RenameDialog
@@ -76,6 +75,14 @@ import com.example.zenglow.data.entities.Device
 import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.GroupState
 import kotlin.math.absoluteValue
+/*
+ FILE: HomeScreen.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Main Page of the app containing a link to the MoodBoost window,
+              light intensity and temperature sliders and a pager with light groups.
+              Groups contain devices, which can be controlled manually, the user can also access
+              the detail page of the device
+ */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,14 +144,14 @@ fun MainScrollContent(
             Row() {
                 var value1 by remember { mutableStateOf(0f) }
                 var value2 by remember { mutableStateOf(0f) }
-                VerticalSlider(
+                VerticalBrightnessSlider(
                     value = value1,
                     onValueChange = {value1 = it},
                     modifier = Modifier
                         .width(150.dp)
                         .height(50.dp)
                 )
-                VerticalSlider(
+                VerticalTemperatureSlider(
                     value = value2,
                     onValueChange = {value2 = it},
                     modifier = Modifier
@@ -268,6 +275,9 @@ fun MainScrollContent(
                                 Text(text = "Add new group")
                             }
                         }
+                        if(state.isAddingGroup) {
+                            AddGroupDialog(state = state, onEvent = onEvent)
+                        }
                     }
                 }
             }
@@ -297,42 +307,36 @@ fun GroupDeviceItem(
     device: Device,
     navController: NavController,
 ) {
-    Card(
-        modifier
-            .padding(5.dp)
-            .wrapContentSize(),
-//            .clickable {
-//            },
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(10.dp)
-    ) {
-        Column() {
-//            Row(
-//                modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.Top,
-//                horizontalArrangement = Arrangement.SpaceEvenly
-//            ) {
-//                Icon(Icons.Outlined.List, "Add New Device To Group")
-//                Text(text = device.displayName)
-//                var checked by remember { mutableStateOf(true) }
-//                Switch(
-//                    checked = checked,
-//                    onCheckedChange = {
-//                        checked = it
-//                    }
-//                )
-//            }
+        Column(
+            modifier = Modifier
+                .background(Color.White)
+        ) {
             ListItem(
+                modifier = Modifier.height(48.dp),
                 headlineContent = {Text(device.displayName)},
                 leadingContent = {
-                    Icon(Icons.Filled.Menu, contentDescription = "Bulbicon")
+                    Box(
+                        modifier = Modifier
+                            .border(1.dp, Color.Black, CircleShape)
+                            .clip(CircleShape)
+                            .background(color = Color(0xfffcba03))
+                            .size(30.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = R.drawable.emoji_objects),
+                            contentDescription = "bulbIcon",
+                            modifier = Modifier
+                                .size(24.dp)
+                        )
+                    }
                 },
                 trailingContent = {
                     var checked by remember { mutableStateOf(true) }
                     Switch(
-                        modifier = Modifier.scale(0.8f),
+                        modifier = Modifier
+                            .scale(0.8f)
+                            .padding(end = 8.dp),
                         checked = checked,
                         onCheckedChange = {
                             checked = it
@@ -340,21 +344,55 @@ fun GroupDeviceItem(
                     )
                 }
             )
-            Row(){
-                var value by remember { mutableStateOf(0f) }
-                Slider(
-                    value = value ,
-                    onValueChange = {value = it},
+            Row(
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp, bottom = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ){
+            //Brightness slider
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.weight(1f) // Expandable inner Row
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.brightness_empty),
+                        contentDescription = "low brightness",
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                    var value by remember { mutableStateOf(0f) }
+                    Slider(
+                        value = value ,
+                        onValueChange = {value = it},
+                        modifier = Modifier
+                            .width(130.dp)
+                            .height(24.dp)
+                            .padding(8.dp)
+                    )
+                    Image(
+                        painter = painterResource(id = R.drawable.brightness_high),
+                        contentDescription = "high brightness",
+                        modifier = Modifier
+                            .size(20.dp)
+                    )
+                }
+                //Button to device detail page
+                Image(
+                    painter = painterResource(id = R.drawable.tune),
+                    contentDescription = "open device detail page",
                     modifier = Modifier
-                        .width(150.dp)
-                        .height(25.dp)
+                        .size(24.dp)
+                        .clickable {
+                            navController.navigate("${Screen.DeviceConfig.route}/${device.deviceId}")
+                        }
                 )
-                Icon(Icons.Outlined.Settings, "Open device detail page")
             }
         }
-
+        HorizontalDivider(
+            thickness = 0.5.dp,
+            color = Color.Black
+        )
     }
-}
 
 @Composable
 fun imageBtn(
@@ -369,8 +407,14 @@ fun imageBtn(
                 .clickable { navController.navigate(Screen.MoodBoost.route) })
 }
 
+
+/*
+Composable for a vertical slider controlling the overall brightness of all lights
+The color of the icon in the slider thumb changes dynamically depending on the slider position
+ */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerticalSlider(
+fun VerticalBrightnessSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
@@ -382,6 +426,8 @@ fun VerticalSlider(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     colors: SliderColors = SliderDefaults.colors()
 ){
+    val backgroundColor = calculateBackgroundColor(value)
+
     Slider(
         colors = colors,
         interactionSource = interactionSource,
@@ -390,6 +436,22 @@ fun VerticalSlider(
         valueRange = valueRange,
         enabled = enabled,
         value = value,
+        thumb = {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(color = Color(backgroundColor))
+                    .size(36.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.device_thermostat_rotated),
+                    contentDescription = "bulbIcon",
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+            }
+        },
         onValueChange = onValueChange,
         modifier = Modifier
             .graphicsLayer {
@@ -411,4 +473,77 @@ fun VerticalSlider(
             }
             .then(modifier)
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VerticalTemperatureSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
+    /*@IntRange(from = 0)*/
+    steps: Int = 0,
+    onValueChangeFinished: (() -> Unit)? = null,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    colors: SliderColors = SliderDefaults.colors()
+){
+    val backgroundColor = calculateBackgroundColor(value)
+
+    Slider(
+        colors = colors,
+        interactionSource = interactionSource,
+        onValueChangeFinished = onValueChangeFinished,
+        steps = steps,
+        valueRange = valueRange,
+        enabled = enabled,
+        value = value,
+        thumb = {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .background(color = Color(backgroundColor))
+                    .size(36.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.device_thermostat_rotated),
+                    contentDescription = "bulbIcon",
+                    modifier = Modifier
+                        .size(30.dp)
+                )
+            }
+        },
+        onValueChange = onValueChange,
+        modifier = Modifier
+            .graphicsLayer {
+                rotationZ = 270f
+                transformOrigin = TransformOrigin(0f, 0f)
+            }
+            .layout { measurable, constraints ->
+                val placeable = measurable.measure(
+                    Constraints(
+                        minWidth = constraints.minHeight,
+                        maxWidth = constraints.maxHeight,
+                        minHeight = constraints.minWidth,
+                        maxHeight = constraints.maxHeight,
+                    )
+                )
+                layout(placeable.height, placeable.width) {
+                    placeable.place(-placeable.width, 0)
+                }
+            }
+            .then(modifier)
+    )
+}
+
+@Composable
+private fun calculateBackgroundColor(value: Float): Int {
+    val blue = argb(255, 3, 186, 252)
+    val yellow = argb(255, 252, 186, 3)
+
+    val ratio = value.coerceIn(0f, 1f)
+
+    return ColorUtils.blendARGB(blue, yellow, ratio)
 }

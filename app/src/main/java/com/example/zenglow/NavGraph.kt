@@ -11,6 +11,7 @@ import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 import com.example.zenglow.states.GroupState
+import com.example.zenglow.views.DeviceConfigScreen
 import com.example.zenglow.views.HomeScreen
 import com.example.zenglow.views.NewDeviceScreen
 import com.example.zenglow.views.SettingsScreen
@@ -49,6 +50,14 @@ fun SetupNavGraph(
             route = Screen.MoodBoost.route
         ) {
             MoodBoostScreen(navController = navController)
+        }
+        composable(
+            route = "${Screen.DeviceConfig.route}/{deviceId}",
+            arguments = listOf(navArgument("deviceId") { type = NavType.IntType})
+        ) { backStackEntry ->
+            val deviceId = backStackEntry.arguments?.getInt("deviceId")
+
+            DeviceConfigScreen(navController = navController, state = deviceState, onEvent = onDeviceEvent)
         }
     }
 }

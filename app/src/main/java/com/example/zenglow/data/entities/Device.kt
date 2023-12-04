@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class Device(
     val displayName: String,
     val groupId: Int,
+
     @PrimaryKey(autoGenerate = true)
     val deviceId: Int = 0
 )
