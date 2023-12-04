@@ -1,5 +1,6 @@
 package com.example.zenglow
 
+import MoodBoostScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -11,7 +12,6 @@ import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 import com.example.zenglow.states.GroupState
 import com.example.zenglow.views.HomeScreen
-import com.example.zenglow.views.MoodBoostScreen
 import com.example.zenglow.views.NewDeviceScreen
 import com.example.zenglow.views.SettingsScreen
 
