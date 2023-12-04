@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.example.zenglow.views
 
@@ -9,22 +9,17 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.CardDefaults
@@ -39,35 +34,31 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.SnackbarData
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.zenglow.R
 import com.example.zenglow.Screen
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+
+/*
+    DESCRIPTION: SettingsScreen
+                 Screen for the settings options of the app.
+*/
 @Composable
 fun SettingsScreen(navController: NavController) {
     var showDialog by remember { mutableStateOf(value = false) }
@@ -90,8 +81,9 @@ fun SettingsScreen(navController: NavController) {
 
 
 /*
-    DESCRIPTION: TODO add description
- */
+    DESCRIPTION: SettingsScreen -> TopBar
+                 Top bar for the settings screen.
+*/
 @Composable
 fun SettingsTopBar(navController: NavController, onInfoButtonClick: () -> Unit) {
     CenterAlignedTopAppBar(
@@ -106,7 +98,7 @@ fun SettingsTopBar(navController: NavController, onInfoButtonClick: () -> Unit) 
         navigationIcon = {
             IconButton(onClick = { navController.navigate(Screen.Home.route) }) {
                 Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     modifier = Modifier.size(36.dp),
                     contentDescription = "Return back to home-page"
                 )
@@ -125,11 +117,12 @@ fun SettingsTopBar(navController: NavController, onInfoButtonClick: () -> Unit) 
 }
 
 
-
-
-
 /*
-    DESCRIPTION: TODO add description
+    DESCRIPTION:    SettingsScreen -> Dialog
+                    Dialog for the settings screen, which is trigger by SettingsTopBar,
+                    when the info button is clicked.
+
+    TODO:           Fix Text() text, values if needed.
 */
 @Composable
 fun MinimalDialog(onDismissRequest: () -> Unit) {
@@ -139,32 +132,46 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
                 defaultElevation = 6.dp
             ),
             modifier = Modifier
-                .size(width = 240.dp, height = 200.dp)
+                .size(width = 300.dp, height = 320.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
             ) {
-                Text(
-                    text = "Elevated",
+                Text(   // Headline
+                    text = "ZenGlow",
+                    style = MaterialTheme.typography.headlineLarge,
+                    textAlign = TextAlign.Center
+                )
+                Text(   // SubHeadline
+                    text = "Version 0.3.0-Pre-Alpha",
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center,
                 )
-                Text(
-                    text = "Card",
+                Text(   // MainBody
+                    text ="\nApp for controlling smartLED devices, based on your mood. Implemented for ITU-Project (BUT-FIT).",
+                    style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
                 )
-                Text(
-                    text = "This is a card with elevation",
-                    textAlign = TextAlign.Center,
+                Text(   // OtherBody Headline
+                    text = "\nCreated by:",
+                    style = MaterialTheme.typography.titleSmall,
+                    textAlign = TextAlign.Left
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(   // OtherBody
+                    text = " - Nikolas Nosál (xnosal01)\n" +
+                            " - Jakub Brnák (xbrnak??)\n" +
+                            " - Daniel Blaško (xblask??)\n",
+                    style = MaterialTheme.typography.bodySmall,
+                    textAlign = TextAlign.Left,
+                )
                 TextButton(
                     onClick = { onDismissRequest() }, // Close the dialog
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
+                        .align(Alignment.End),
                 ) {
                     Text(text = "Close")
                 }
@@ -175,24 +182,29 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
 
 
 /*
-    DESCRIPTION: TODO add description
+    DESCRIPTION:    SettingsScreen -> ScrollContent
+                    Scrollable content for the settings screen.
 */
 @Composable
 fun SettingsScrollContent(innerPadding: PaddingValues) {
-    Box(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xEC, 0xEC, 0xEC)),
-        contentAlignment = Alignment.Center
+            .background(MaterialTheme.colorScheme.onBackground)
+            .padding(innerPadding)
     ) {
-        NotificationListItem()
-        ConnectionListItem()
+        item {
+            NotificationListItem()
+        }
+        item {
+            ConnectionListItem()
+        }
     }
 }
 
 
 /*
- DESCRIPTION:   Settings -> Notification
+ DESCRIPTION:   SettingsScreen -> ScrollContent -> Notification
                 List item with a drop-down menu to turn on/off notifications
 
  TODO:          - (ListItem->supportingContent), the text should be read from database.
@@ -208,7 +220,11 @@ fun NotificationListItem() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(
+                start = 24.dp,
+                top = 16.dp,
+                end = 24.dp,
+            )
             .clip(shape = RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.background),
 
@@ -267,7 +283,7 @@ fun NotificationListItem() {
 
 
 /*
- DESCRIPTION:   Settings -> Connection
+ DESCRIPTION:   SettingsScreen -> ScrollContent -> Connection
                 List item with a drop-down menu to select a connection type
 
  TODO:          - (ListItem->supportingContent), the text should be read from database.
@@ -278,19 +294,23 @@ fun NotificationListItem() {
 fun ConnectionListItem() {
     var toggleConnection by remember { mutableStateOf(value = false) }
     var typeConnection by remember { mutableStateOf(0) }            // TODO (should be read from database)
-    val optionsConnection = listOf("Wifi", "Bluethooth")
+    val optionsConnection = listOf("Wifi", "Bluetooth")
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(
+                start = 24.dp,
+                top = 16.dp,
+                end = 24.dp,
+            )
             .clip(shape = RoundedCornerShape(18.dp))
             .background(MaterialTheme.colorScheme.background),
 
         ) {
 
         ListItem(
-            headlineContent = { Text(text = "Notifications") },
+            headlineContent = { Text(text = "Connection") },
             supportingContent = { Text(text = "(not implemented)") },       // TODO (should be read from database)
             trailingContent = {
                 Icon(
@@ -303,7 +323,7 @@ fun ConnectionListItem() {
             },
             leadingContent = {
                 Icon(
-                    Icons.Filled.Notifications,
+                    painter = painterResource(R.drawable.outline_wifi_tethering_24),
                     contentDescription = "TestSetting",
                 )
             }
