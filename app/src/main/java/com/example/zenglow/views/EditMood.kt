@@ -90,7 +90,7 @@ fun MainScrollContent(
         SliderBoxPhysical(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
         SliderBoxStress(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
         RadioButtonGroup(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
-        OutlinedButton(onClick = { navController.navigate("${Screen.MoodBoost.route}")},
+        OutlinedButton(onClick = { navController.navigateUp()},
                     modifier = Modifier.padding(top = 10.dp)
             ) {
             Text("Done")
