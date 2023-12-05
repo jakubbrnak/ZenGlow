@@ -1,11 +1,14 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -35,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.zenglow.R
+import com.example.zenglow.Screen
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.sql.Types.NULL
@@ -52,13 +56,15 @@ fun MoodBoostScreen(navController: NavController) {
         topBar = { MoodBoostTopBar { navController.navigateUp() } },
 
     ) {
-        innerPadding -> MainScrollContent(innerPadding)
+        innerPadding -> MainScrollContent(innerPadding, navController)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScrollContent(innerPadding: PaddingValues){
+fun MainScrollContent(
+    innerPadding: PaddingValues,
+    navController: NavController,){
 
     Column(
         modifier = Modifier
@@ -75,7 +81,11 @@ fun MainScrollContent(innerPadding: PaddingValues){
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 20.dp)  // Adds padding to the start
         )
-            ImagePager()
+        val mypagerState = rememberPagerState(pageCount = {
+            4
+        })
+
+        ImagePager(mypagerState)
         Spacer(modifier = Modifier.height(10.dp))
         Text(
             "Suggested Mood",
@@ -84,9 +94,9 @@ fun MainScrollContent(innerPadding: PaddingValues){
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 10.dp)  // Adds padding to the start
         )
-        OverallScore()
+        OverallScore(navController)
 
-        SuggestedMood()
+        SuggestedMood(mypagerState)
 
 
     }
@@ -94,10 +104,10 @@ fun MainScrollContent(innerPadding: PaddingValues){
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun ImagePager(){
-    val pagerState = rememberPagerState(pageCount = {
-        4
-    })
+fun ImagePager(
+    pagerState: PagerState,
+){
+
     val imageList = listOf(R.drawable.mood_working3, R.drawable.mood_sleep, R.drawable.mood_working3, R.drawable.mood_sleep)
     val moodList = listOf("Working", "Sleep", "Sport", "Chill")
     HorizontalPager(
@@ -161,7 +171,7 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
 
 
 @Composable
-fun OverallScore(){
+fun OverallScore(navController: NavController){
     Column(
         modifier = Modifier
             .padding(top = 10.dp)
@@ -204,11 +214,8 @@ fun OverallScore(){
                 Row(modifier = Modifier
                     .padding(top = 30.dp)){
                     TimeDisplay()
-                    EditButtonExample(onClick = {})
+                    EditButtonExample(onClick = {navController.navigate("${Screen.EditMood.route}")})
                 }
-
-
-
             }
         }
     }
@@ -270,9 +277,9 @@ fun getCurrentTime(): String {
     val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
     return sdf.format(Date())
 }
-@Preview
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SuggestedMood() {
+fun SuggestedMood(pagerState: PagerState) {
     Column(
         modifier = Modifier
             .padding(top = 10.dp)
@@ -295,15 +302,23 @@ fun SuggestedMood() {
             ) {
 
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Sleeping", style = MaterialTheme.typography.titleMedium,)
+                Text("Chill", style = MaterialTheme.typography.titleMedium,)
 
 
-                FilledButtonExample(onClick = {}) // Button to the right
+                val coroutineScope = rememberCoroutineScope()
+                FilledButtonExample(onClick = {
+                    coroutineScope.launch {
+                        // Call scroll to on pagerState
+                        val animationSpec: AnimationSpec<Float> = TweenSpec(
+                            durationMillis = 800
+                        )
+                        pagerState.animateScrollToPage(3, animationSpec = animationSpec)
+                    }
+                }) // Button to the right
             }
         }
     }
 }
-
 
 @Composable
 fun FilledButtonExample(onClick: () -> Unit) {

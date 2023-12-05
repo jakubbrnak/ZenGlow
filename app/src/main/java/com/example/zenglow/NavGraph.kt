@@ -12,6 +12,7 @@ import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 import com.example.zenglow.states.GroupState
 import com.example.zenglow.views.DeviceConfigScreen
+import com.example.zenglow.views.EditMoodScreen
 import com.example.zenglow.views.HomeScreen
 import com.example.zenglow.views.NewDeviceScreen
 import com.example.zenglow.views.SettingsScreen
@@ -47,10 +48,17 @@ fun SetupNavGraph(
             SettingsScreen(navController = navController)
         }
         composable(
+            route = Screen.EditMood.route
+        ) {
+            EditMoodScreen(navController = navController)
+        }
+
+        composable(
             route = Screen.MoodBoost.route
         ) {
             MoodBoostScreen(navController = navController)
         }
+
         composable(
             route = "${Screen.DeviceConfig.route}/{deviceId}",
             arguments = listOf(navArgument("deviceId") { type = NavType.IntType})

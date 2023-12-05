@@ -103,6 +103,5 @@ fun DeviceConfigScrollContent(
                 fontSize = MaterialTheme.typography.bodyLarge.fontSize
             )
         }
-
     }
 }
