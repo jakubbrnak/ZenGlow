@@ -5,16 +5,19 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -102,6 +105,39 @@ fun NewDeviceScrollContent(
             .background(Color(0xEC, 0xEC, 0xEC)),
 
     ) {
+        Text(
+            "Available devices",
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier
+                .align(Alignment.Start) // Aligns the text to the start within the column
+                .padding(start = 16.dp, top = 20.dp)  // Adds padding to the start
+        )
+        // Display list of devices
+        if (state.freeDevices.isNotEmpty()) {
+            BoxWithConstraints {
+                val constraints = maxWidth - 32.dp
+                val maxHeight = maxHeight * 0.8f
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .background(Color.White, RoundedCornerShape(16.dp))
+                        .heightIn(0.dp, maxHeight)
+                ) {
+                    LazyColumn(contentPadding = PaddingValues(12.dp)) {
+                        items(state.freeDevices.size) { device ->
+                            DeviceItem(
+                                modifier = Modifier,
+                                device = state.freeDevices[device],
+                                navController = navController,
+                                groupId = groupId,
+                                onEvent = onEvent
+                            )
+                        }
+                    }
+                }
+            }
+        }
         FloatingActionButton(
             onClick = {
                 onEvent(DeviceEvent.ShowDialog)
@@ -109,37 +145,13 @@ fun NewDeviceScrollContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-//                .align(Alignment.BottomEnd) // Align to the bottom end of the screen
         ) {
-            Row {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ){
                 Icon(Icons.Filled.Add, "Add New Device")
                 Text(text = "Add device manually")
             }
-        }
-        Text(
-            text = "Available devices",
-            color = MaterialTheme.colorScheme.secondary,
-            fontSize = MaterialTheme.typography.bodyMedium.fontSize,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-        // Display list of devices
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            LazyColumn(contentPadding = PaddingValues(top = 16.dp)) {
-                items(state.freeDevices.size) { device ->
-                    DeviceItem(
-                        modifier = Modifier,
-                        device = state.freeDevices[device],
-                        navController = navController,
-                        groupId = groupId,
-                        onEvent = onEvent
-                    )
-                }
-            }
-
         }
 
         if (state.isAddingDevice) {
