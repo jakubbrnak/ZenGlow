@@ -23,6 +23,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +40,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.zenglow.R
 import com.example.zenglow.Screen
+import com.example.zenglow.events.AppStateEvent
+import com.example.zenglow.states.AppStateState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.sql.Types.NULL
@@ -50,13 +53,16 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MoodBoostScreen(navController: NavController) {
+fun MoodBoostScreen(navController: NavController,
+                    appStateState: AppStateState,
+                    onAppStateEvent: (AppStateEvent) -> Unit,
+                    ) {
 
     Scaffold(
-        topBar = { MoodBoostTopBar { navController.navigateUp() } },
+        topBar = { MoodBoostTopBar { navController.navigateUp()}},
 
     ) {
-        innerPadding -> MainScrollContent(innerPadding, navController)
+        innerPadding -> MainScrollContent(innerPadding, navController, appStateState, onAppStateEvent)
     }
 }
 
@@ -64,7 +70,10 @@ fun MoodBoostScreen(navController: NavController) {
 @Composable
 fun MainScrollContent(
     innerPadding: PaddingValues,
-    navController: NavController,){
+    navController: NavController,
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit,
+    ){
 
     Column(
         modifier = Modifier
@@ -81,9 +90,20 @@ fun MainScrollContent(
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 20.dp)  // Adds padding to the start
         )
-        val mypagerState = rememberPagerState(pageCount = {
-            4
-        })
+
+        val currentPage = appStateState.currentMood
+        val mypagerState = rememberPagerState(
+                            pageCount = {4},
+                            initialPage = currentPage
+                            )
+        LaunchedEffect(mypagerState) {
+            // Collect from the a snapshotFlow reading the currentPage
+            snapshotFlow { mypagerState.currentPage }.collect { page ->
+                // Do something with each page change, for example:
+                val updatedAppState = appStateState.copy(currentMood = mypagerState.currentPage)
+                onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+            }
+        }
 
         ImagePager(mypagerState)
         Spacer(modifier = Modifier.height(10.dp))
@@ -94,9 +114,9 @@ fun MainScrollContent(
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 10.dp)  // Adds padding to the start
         )
-        OverallScore(navController)
+        OverallScore(navController, appStateState)
 
-        SuggestedMood(mypagerState)
+        SuggestedMood(mypagerState,appStateState)
 
 
     }
@@ -142,7 +162,6 @@ fun ImagePager(
             }
         }
     }
-
 }
 
 @Composable
@@ -171,7 +190,12 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
 
 
 @Composable
-fun OverallScore(navController: NavController){
+fun OverallScore(
+            navController: NavController,
+            appStateState: AppStateState
+        ){
+
+    val score = ((appStateState.energy*100)*0.3 + (100 - appStateState.stressIndex*100)*0.3 + ((appStateState.mentalState+1)*20)*0.3).toInt()
     Column(
         modifier = Modifier
             .padding(top = 10.dp)
@@ -203,14 +227,13 @@ fun OverallScore(navController: NavController){
                     letterSpacing = 0.sp
                 )
                 Text(
-                    text = "54",
+                    text = "$score",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.W300,
                     fontSize = 90.sp
                 )
 
-                val databaseValue by remember { mutableStateOf(0.75f) }
-                DatabaseProgressIndicator(databaseProgress = databaseValue)
+                DatabaseProgressIndicator(databaseProgress = (score.toFloat()/100))
                 Row(modifier = Modifier
                     .padding(top = 30.dp)){
                     TimeDisplay()
@@ -279,7 +302,10 @@ fun getCurrentTime(): String {
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SuggestedMood(pagerState: PagerState) {
+fun SuggestedMood(pagerState: PagerState,
+                  appStateState: AppStateState) {
+
+    
     Column(
         modifier = Modifier
             .padding(top = 10.dp)
@@ -338,7 +364,6 @@ fun FilledButtonExample(onClick: () -> Unit) {
         }
     }
 }
-
 
 @Composable
 fun DatabaseProgressIndicator(databaseProgress: Float) {

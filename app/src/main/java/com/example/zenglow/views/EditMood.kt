@@ -27,6 +27,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -50,23 +51,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.zenglow.Screen
+import com.example.zenglow.events.AppStateEvent
+import com.example.zenglow.states.AppStateState
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EditMoodScreen(navController: NavController) {
+fun EditMoodScreen(
+    navController: NavController,
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit
+    ) {
 
     Scaffold(
         topBar = { MoodBoostTopBar { navController.navigateUp() } },
 
         ) {
-            innerPadding -> MainScrollContent(innerPadding)
+            innerPadding -> MainScrollContent(innerPadding, navController, appStateState, onAppStateEvent)
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MainScrollContent(innerPadding: PaddingValues){
-
+fun MainScrollContent(
+    innerPadding: PaddingValues,
+    navController: NavController,
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit
+    ){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -75,30 +86,49 @@ fun MainScrollContent(innerPadding: PaddingValues){
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        SliderBox("Stress Index")
-        SliderBox("Physical energy")
-        RadioButtonGroup()
+        Spacer(modifier = Modifier.height(100.dp))
+        SliderBoxPhysical(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
+        SliderBoxStress(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
+        RadioButtonGroup(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
+        OutlinedButton(onClick = { navController.navigate("${Screen.MoodBoost.route}")},
+                    modifier = Modifier.padding(top = 10.dp)
+            ) {
+            Text("Done")
+        }
     }
 }
 
+fun onClick() {
+    TODO("Not yet implemented")
+}
+
 @Composable
-fun RadioButtonGroup() {
+fun RadioButtonGroup(
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit
+) {
     // State to hold the index of the currently selected radio button
-    var selectedOption by remember { mutableStateOf(0) }
+    var selectedOption = appStateState.mentalState
 
     Card(
         Modifier
             .width(340.dp)
-            .height(120.dp)
+            .height(150.dp)
             .padding(top = 40.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
-
-
-        Row(Modifier
-            .selectableGroup()
-            .align(Alignment.Start)
-            .padding(top = 10.dp),
+        Text(
+            text = "Mental State",
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+        Row(
+            Modifier
+                .selectableGroup()
+                .align(Alignment.Start)
+                .padding(top = 10.dp),
             verticalAlignment = Alignment.Bottom
 
         )
@@ -110,10 +140,10 @@ fun RadioButtonGroup() {
             Text(text = "\uD83D\uDE42", fontSize = 24.sp, modifier = Modifier.padding(start = 18.dp))
             Text(text = "\uD83E\uDD29", fontSize = 24.sp, modifier = Modifier.padding(start = 17.dp))
         }
-
-        Row(Modifier
-            .selectableGroup()
-            .align(Alignment.CenterHorizontally),
+        Row(
+            Modifier
+                .selectableGroup()
+                .align(Alignment.CenterHorizontally),
             verticalAlignment = Alignment.Bottom
 
             )
@@ -122,7 +152,12 @@ fun RadioButtonGroup() {
             for (index in 0 until 5) {
                 RadioButton(
                     selected = selectedOption == index,
-                    onClick = { selectedOption = index },
+                    onClick = {
+                        selectedOption = index
+                        val updatedAppState = appStateState.copy(mentalState = index)
+                        onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+
+                        },
                     modifier = Modifier.semantics { contentDescription = "Option ${index + 1}" }
                 )
             }
@@ -130,11 +165,12 @@ fun RadioButtonGroup() {
     }
 }
 
-
 @Composable
-fun SliderBox(
-    sliderText: String
+fun SliderBoxPhysical(
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit
 ){
+    var physicalValue = appStateState.energy
     Card(
         Modifier
             .width(340.dp)
@@ -148,7 +184,7 @@ fun SliderBox(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                text = sliderText,
+                text = "Physical energy",
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier
                     .padding(top = 10.dp)
@@ -158,27 +194,71 @@ fun SliderBox(
                     .padding(start = 12.dp)
             ) {
                 Text(text = "LOW")
-                SliderMinimalExample()
+                Column {
+                    Slider(
+                        value = physicalValue,
+                        onValueChange = {
+                            physicalValue = it
+                            val updatedAppState = appStateState.copy(energy = physicalValue)
+                            onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+                                        },
+                        modifier = Modifier
+                            .width(240.dp)
+                    )
+                }
                 Text(text = "HIGH")
             }
         }
     }
 }
 
-
-
 @Composable
-fun SliderMinimalExample() {
-    var sliderPosition by remember { mutableFloatStateOf(0f)}
-    Column {
-        Slider(
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
-            modifier = Modifier
-                .width(240.dp)
-        )
+fun SliderBoxStress(
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit
+){
+    var stressValue = appStateState.stressIndex
+    Card(
+        Modifier
+            .width(340.dp)
+            .height(120.dp)
+            .padding(top = 40.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+
+    ) {
+        Column(
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = "Stress Level",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(top = 10.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+            ) {
+                Text(text = "LOW")
+                Column {
+                    Slider(
+                        value = stressValue,
+                        onValueChange = {
+                            stressValue = it
+                            val updatedAppState = appStateState.copy(stressIndex = stressValue)
+                            onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+                            },
+                        modifier = Modifier
+                            .width(240.dp)
+                    )
+                }
+                Text(text = "HIGH")
+            }
+        }
     }
 }
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
