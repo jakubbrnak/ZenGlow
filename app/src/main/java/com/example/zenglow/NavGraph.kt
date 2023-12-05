@@ -7,8 +7,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
+import com.example.zenglow.states.AppStateState
 import com.example.zenglow.states.DeviceState
 import com.example.zenglow.states.GroupState
 import com.example.zenglow.views.DeviceConfigScreen
@@ -22,8 +24,10 @@ fun SetupNavGraph(
     navController: NavHostController,
     groupState: GroupState,
     deviceState: DeviceState,
+    appStateState: AppStateState,
     onGroupEvent: (GroupEvent) -> Unit,
-    onDeviceEvent: (DeviceEvent) -> Unit
+    onDeviceEvent: (DeviceEvent) -> Unit,
+    onAppStateEvent: (AppStateEvent) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -32,7 +36,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.Home.route
         ) {
-            HomeScreen(navController = navController, state = groupState, onEvent = onGroupEvent)
+            HomeScreen(navController = navController, groupState = groupState, deviceState = deviceState, appStateState = appStateState, onGroupEvent = onGroupEvent, onDeviceEvent = onDeviceEvent, onAppStateEvent = onAppStateEvent)
         }
         composable(
             route = "${Screen.NewDevice.route}/{groupId}",

@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
@@ -72,9 +73,12 @@ import com.example.zenglow.R
 import com.example.zenglow.RenameDialog
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
+import com.example.zenglow.events.AppStateEvent
+import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
+import com.example.zenglow.states.AppStateState
+import com.example.zenglow.states.DeviceState
 import com.example.zenglow.states.GroupState
-import kotlin.math.absoluteValue
 /*
  FILE: HomeScreen.kt
  AUTHOR: Daniel Blaško <xblask05>
@@ -88,8 +92,12 @@ import kotlin.math.absoluteValue
 @Composable
 fun HomeScreen(
     navController: NavController,
-    state: GroupState,
-    onEvent: (GroupEvent) -> Unit
+    groupState: GroupState,
+    deviceState: DeviceState,
+    appStateState: AppStateState,
+    onGroupEvent: (GroupEvent) -> Unit,
+    onDeviceEvent: (DeviceEvent) -> Unit,
+    onAppStateEvent: (AppStateEvent) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -108,7 +116,7 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-        MainScrollContent(innerPadding, navController, state, onEvent)
+        MainScrollContent(innerPadding, navController, groupState, deviceState, appStateState, onGroupEvent, onDeviceEvent, onAppStateEvent)
     }
 
 }
@@ -118,8 +126,12 @@ fun HomeScreen(
 fun MainScrollContent(
     innerPadding: PaddingValues,
     navController: NavController,
-    state: GroupState,
-    onEvent: (GroupEvent) -> Unit
+    groupState: GroupState,
+    deviceState: DeviceState,
+    appStateState: AppStateState,
+    onGroupEvent: (GroupEvent) -> Unit,
+    onDeviceEvent: (DeviceEvent) -> Unit,
+    onAppStateEvent: (AppStateEvent) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -130,61 +142,46 @@ fun MainScrollContent(
         horizontalAlignment = Alignment.CenterHorizontally,
 
     ) {
+        //Mood Boost button and general control sliders
         Row(
             modifier = Modifier.padding(top = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(32.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.moodboosticon),
-                contentDescription = "moodBoostIcon",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clickable { navController.navigate(Screen.MoodBoost.route) }
-            )
-            Row() {
-                var value1 by remember { mutableStateOf(0f) }
-                var value2 by remember { mutableStateOf(0f) }
+            moodBoostBtn(navController = navController)
+            Row (
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 VerticalBrightnessSlider(
-                    value = value1,
-                    onValueChange = {value1 = it},
+                    appStateState = appStateState,
+                    onAppStateEvent = onAppStateEvent,
                     modifier = Modifier
                         .width(150.dp)
                         .height(50.dp)
                 )
                 VerticalTemperatureSlider(
-                    value = value2,
-                    onValueChange = {value2 = it},
+                    appStateState = appStateState,
+                    onAppStateEvent = onAppStateEvent,
                     modifier = Modifier
                         .width(150.dp)
                         .height(50.dp)
                 )
             }
         }
-
         //Pager for groups
         val pagerState = rememberPagerState(pageCount = {
-            state.groups.size + 1 //For group creating card
+            groupState.groups.size + 2 //For ungrouped devices and group creating card
         })
 
         HorizontalPager(
             state = pagerState,
             contentPadding = PaddingValues(start = 46.dp, end = 24.dp)
         ) {page->
-            if (page < state.groups.size) {
+            if (page < groupState.groups.size ) {
                 // Render regular pages based on state.groups
                 Card(
                     Modifier
                         .width(300.dp)
                         .height(450.dp)
-                        .graphicsLayer {
-                            // Calculate the absolute offset for the current page from the
-                            // scroll position. We use the absolute value which allows us to mirror
-                            // any effects for both directions
-                            val pageOffset = (
-                                    (pagerState.currentPage - page) + pagerState
-                                        .currentPageOffsetFraction
-                                    ).absoluteValue
-                        }
                 ) {
                     Column(
                         modifier = Modifier
@@ -195,66 +192,112 @@ fun MainScrollContent(
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
-                            text = "${state.groups[page].group.name}",
+                            text = "${groupState.groups[page].group.name}",
                             textAlign = TextAlign.Center,
                             fontSize = 30.sp,
                             fontWeight = FontWeight.W900
                         )
-                        //Contain the lazycolumn into a box so that it doesn't push other components away
+                        //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(8.dp)
+                                .background(Color.White, RoundedCornerShape(16.dp))
                                 .weight(1f)
                         ) {
-                            LazyColumn(contentPadding = PaddingValues(16.dp)) {
-                                items(state.groups[page].devices.size) { device ->
+                            LazyColumn(contentPadding = PaddingValues(12.dp)) {
+                                items(groupState.groups[page].devices.size) { device ->
                                     GroupDeviceItem(
                                         modifier = Modifier,
-                                        device = state.groups[page].devices[device],
+                                        device = groupState.groups[page].devices[device],
                                         navController = navController,
+                                        onDeviceEvent = onDeviceEvent,
                                     )
                                 }
                             }
                         }
-                        Row(
-                        ){
+                        Row{
                             IconButton(onClick = {
-                                navController.navigate("${Screen.NewDevice.route}/${state.groups[page].group.groupId}")}
+                                navController.navigate("${Screen.NewDevice.route}/${groupState.groups[page].group.groupId}")}
                             ) {
                                 Icon(Icons.Filled.Add, contentDescription = "Add New Device")
                             }
                             IconButton(onClick = {
-                                onEvent(GroupEvent.DeleteGroup(state.groups[page].group))
+                                onGroupEvent(GroupEvent.DeleteGroup(groupState.groups[page].group))
                             }) {
                                 Icon(Icons.Filled.Delete, contentDescription = "delete group")
                             }
 
                             IconButton(onClick = {
-                                onEvent(GroupEvent.ShowRenameDialog(page))
+                                onGroupEvent(GroupEvent.ShowRenameDialog(page))
                             }) {
                                 Icon(Icons.Filled.Create, contentDescription = "rename group")
                             }
 
-                            if(state.isRenaming == page) {
-                                RenameDialog(state = state, onEvent = onEvent, group = state.groups[page].group)
+                            if(groupState.isRenaming == page) {
+                                RenameDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
+                            }
+                        }
+                    }
+                }
+            } else if (page == groupState.groups.size ) {
+                // Render the extra page (new content for the additional page)
+                Card(
+                    Modifier
+                        .width(300.dp)
+                        .height(450.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.tertiaryContainer),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Unassigned devices",
+                            textAlign = TextAlign.Center,
+                            fontSize = 30.sp,
+                            fontWeight = FontWeight.W900
+                        )
+                        //Contain the lazyColumn into a box so that it doesn't push other components away
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                                .background(Color.White, RoundedCornerShape(16.dp))
+                                .weight(1f)
+                        ) {
+                            LazyColumn(contentPadding = PaddingValues(12.dp)) {
+                                items(deviceState.freeDevices.size) { device ->
+                                    GroupDeviceItem(
+                                        modifier = Modifier,
+                                        device = deviceState.freeDevices[device],
+                                        navController = navController,
+                                        onDeviceEvent = onDeviceEvent,
+                                    )
+                                }
+                            }
+                        }
+                        Row{
+                            IconButton(onClick = {
+                                onDeviceEvent(DeviceEvent.ShowDialog)
+                                }
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
+                            }
+                            if (deviceState.isAddingDevice) {
+                                AddDeviceDialog(state = deviceState, onEvent = onDeviceEvent)
                             }
                         }
                     }
                 }
             } else {
-                // Render the extra page (new content for the additional page)
+             // Render the extra page (new content for the additional page)
                 Card(
                     Modifier
                         .size(450.dp)
-                        .graphicsLayer {
-                            // Calculate the absolute offset for the current page from the
-                            // scroll position. We use the absolute value which allows us to mirror
-                            // any effects for both directions
-                            val pageOffset = (
-                                    (pagerState.currentPage - page) + pagerState
-                                        .currentPageOffsetFraction
-                                    ).absoluteValue
-                        }
                 ) {
                     Box(
                         modifier = Modifier
@@ -265,7 +308,7 @@ fun MainScrollContent(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                onEvent(GroupEvent.ShowDialog)
+                                onGroupEvent(GroupEvent.ShowDialog)
                             },
                         ) {
                             Row(
@@ -275,8 +318,8 @@ fun MainScrollContent(
                                 Text(text = "Add new group")
                             }
                         }
-                        if(state.isAddingGroup) {
-                            AddGroupDialog(state = state, onEvent = onEvent)
+                        if(groupState.isAddingGroup) {
+                            AddGroupDialog(state = groupState, onEvent = onGroupEvent)
                         }
                     }
                 }
@@ -301,11 +344,17 @@ fun MainScrollContent(
         }
     }
 }
+/*
+DESCRIPTION: Composable for basic control over a device. It contains a switch to turn it on or off,
+             A brightness slider and a button to navigate to the device's detailed control page.
+             The background of the light bulb icon changes depending on the device's chosen colour.
+ */
 @Composable
 fun GroupDeviceItem(
     modifier: Modifier,
     device: Device,
     navController: NavController,
+    onDeviceEvent: (DeviceEvent) -> Unit
 ) {
         Column(
             modifier = Modifier
@@ -319,7 +368,7 @@ fun GroupDeviceItem(
                         modifier = Modifier
                             .border(1.dp, Color.Black, CircleShape)
                             .clip(CircleShape)
-                            .background(color = Color(0xfffcba03))
+                            .background(color = Color(device.color))
                             .size(30.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -360,10 +409,15 @@ fun GroupDeviceItem(
                         modifier = Modifier
                             .size(20.dp)
                     )
-                    var value by remember { mutableStateOf(0f) }
+                    var value by remember { mutableStateOf(device.brightness) }
                     Slider(
                         value = value ,
-                        onValueChange = {value = it},
+                        valueRange = 0f..1f,
+                        onValueChange = {
+                            value = it
+                            val updatedDevice = device.copy(brightness = it)
+                            onDeviceEvent(DeviceEvent.UpdateDevice(updatedDevice))
+                        },
                         modifier = Modifier
                             .width(130.dp)
                             .height(24.dp)
@@ -395,7 +449,7 @@ fun GroupDeviceItem(
     }
 
 @Composable
-fun imageBtn(
+fun moodBoostBtn(
     navController: NavController
 ) {
         Image(
@@ -415,44 +469,47 @@ The color of the icon in the slider thumb changes dynamically depending on the s
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerticalBrightnessSlider(
-    value: Float,
-    onValueChange: (Float) -> Unit,
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
     steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     colors: SliderColors = SliderDefaults.colors()
 ){
-    val backgroundColor = calculateBackgroundColor(value)
+    var brightnessValue = appStateState.brightness
+    val iconColor = calculateBackgroundColor(brightnessValue, Color.Black, Color(0xFFFCBA03))
 
     Slider(
         colors = colors,
         interactionSource = interactionSource,
-        onValueChangeFinished = onValueChangeFinished,
         steps = steps,
+        value = brightnessValue,
         valueRange = valueRange,
         enabled = enabled,
-        value = value,
         thumb = {
             Box(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(color = Color(backgroundColor))
+                    .background(color = Color.Gray)
                     .size(36.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.device_thermostat_rotated),
-                    contentDescription = "bulbIcon",
+                Icon(
+                    painter = painterResource(id = R.drawable.brightness_high),
+                    contentDescription = "brightness Icon",
                     modifier = Modifier
-                        .size(30.dp)
+                        .size(30.dp),
+                    tint = Color(iconColor)
                 )
             }
         },
-        onValueChange = onValueChange,
+        onValueChange = {
+            brightnessValue = it
+            val updatedAppState = appStateState.copy(brightness = brightnessValue)
+            onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+        },
         modifier = Modifier
             .graphicsLayer {
                 rotationZ = 270f
@@ -475,30 +532,32 @@ fun VerticalBrightnessSlider(
     )
 }
 
+/*
+Composable for a vertical slider controlling the overall temperature of all lights
+The color of the slider thumb changes dynamically depending on the slider position
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerticalTemperatureSlider(
-    value: Float,
-    onValueChange: (Float) -> Unit,
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
-    /*@IntRange(from = 0)*/
     steps: Int = 0,
-    onValueChangeFinished: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     colors: SliderColors = SliderDefaults.colors()
 ){
-    val backgroundColor = calculateBackgroundColor(value)
+    var temperatureValue = appStateState.temperature
+    val backgroundColor = calculateBackgroundColor(temperatureValue, Color(0xFF03BAFC), Color(0xFFFCBA03))
 
     Slider(
         colors = colors,
         interactionSource = interactionSource,
-        onValueChangeFinished = onValueChangeFinished,
         steps = steps,
         valueRange = valueRange,
         enabled = enabled,
-        value = value,
+        value = temperatureValue,
         thumb = {
             Box(
                 modifier = Modifier
@@ -509,13 +568,17 @@ fun VerticalTemperatureSlider(
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.device_thermostat_rotated),
-                    contentDescription = "bulbIcon",
+                    contentDescription = "temperature Icon",
                     modifier = Modifier
                         .size(30.dp)
                 )
             }
         },
-        onValueChange = onValueChange,
+        onValueChange = {
+            temperatureValue = it
+            val updatedAppState = appStateState.copy(temperature = temperatureValue)
+            onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+        },
         modifier = Modifier
             .graphicsLayer {
                 rotationZ = 270f
@@ -539,11 +602,21 @@ fun VerticalTemperatureSlider(
 }
 
 @Composable
-private fun calculateBackgroundColor(value: Float): Int {
-    val blue = argb(255, 3, 186, 252)
-    val yellow = argb(255, 252, 186, 3)
+private fun calculateBackgroundColor(value: Float, color1: Color, color2: Color): Int {
+    val color1Int = argb(
+        (color1.alpha * 255).toInt(),
+        (color1.red * 255).toInt(),
+        (color1.green * 255).toInt(),
+        (color1.blue * 255).toInt()
+    )
+    val color2Int = argb(
+        (color2.alpha * 255).toInt(),
+        (color2.red * 255).toInt(),
+        (color2.green * 255).toInt(),
+        (color2.blue * 255).toInt()
+    )
 
     val ratio = value.coerceIn(0f, 1f)
 
-    return ColorUtils.blendARGB(blue, yellow, ratio)
+    return ColorUtils.blendARGB(color1Int, color2Int, ratio)
 }

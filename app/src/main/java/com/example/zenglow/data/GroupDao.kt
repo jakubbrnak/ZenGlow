@@ -6,6 +6,7 @@ import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
+import com.example.zenglow.data.entities.AppState
 import com.example.zenglow.data.entities.Device
 import com.example.zenglow.data.entities.Group
 import com.example.zenglow.data.entities.relations.GroupWithDevices
@@ -21,6 +22,8 @@ interface GroupDao {
     suspend fun upsertDevice(device: Device)
     @Delete
     suspend fun deleteDevice(device: Device)
+    @Upsert
+    suspend fun upsertAppState(appState: AppState)
 
     @Transaction
     @Query("SELECT * FROM 'group'")
@@ -37,5 +40,9 @@ interface GroupDao {
     @Transaction
     @Query("SELECT * FROM 'device' WHERE groupId = -1")
     fun getDevicesWithoutGroup(): Flow<List<Device>>
+
+    @Transaction
+    @Query("SELECT * FROM 'appState' LIMIT 1")
+    fun readState(): Flow<AppState?>
 }
 

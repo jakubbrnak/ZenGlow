@@ -8,7 +8,6 @@ import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.states.DeviceState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.WhileSubscribed
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
@@ -88,7 +87,10 @@ class DeviceViewModel(
                 val device = Device(
                     displayName = event.device.displayName,
                     deviceId = event.device.deviceId,
-                    groupId = event.device.groupId
+                    groupId = event.device.groupId,
+                    temperature = event.device.temperature,
+                    brightness = event.device.brightness,
+                    color = event.device.color
                 )
 
                 viewModelScope.launch {
@@ -96,7 +98,10 @@ class DeviceViewModel(
                 }
 
                 _state.update { it.copy(
-                    displayName = ""
+                    displayName = "",
+                    temperature = 0f,
+                    brightness = 1f,
+                    color = 0xFFFFFF
                 ) }
 
             }

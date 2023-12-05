@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
 import com.example.zenglow.data.GroupDatabase
 import com.example.zenglow.ui.theme.ZenGlowTheme
+import com.example.zenglow.viewModels.AppStateViewModel
 import com.example.zenglow.viewModels.DeviceViewModel
 import com.example.zenglow.viewModels.GroupViewModel
 
@@ -23,7 +24,7 @@ class MainActivity : ComponentActivity() {
             applicationContext,
             GroupDatabase::class.java,
             "group.db"
-        ).build()
+        ).addMigrations(GroupDatabase.migration1to2, GroupDatabase.migration2to3, GroupDatabase.migration3to4).build()
     }
     private val groupViewModel by viewModels<GroupViewModel>(
         factoryProducer = {
@@ -45,19 +46,33 @@ class MainActivity : ComponentActivity() {
         }
     )
 
+    private val appStateViewModel by viewModels<AppStateViewModel>(
+        factoryProducer = {
+            object : ViewModelProvider.Factory {
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return AppStateViewModel(db.dao) as T
+                }
+            }
+        }
+    )
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             ZenGlowTheme {
                 val groupState by groupViewModel. state.collectAsState()
                 val deviceState by deviceViewModel.state.collectAsState()
+                val appStateState by appStateViewModel.state.collectAsState()
                 navController = rememberNavController()
                 SetupNavGraph(
                     navController = navController,
                     groupState = groupState,
                     deviceState = deviceState,
+                    appStateState = appStateState,
                     onGroupEvent = groupViewModel::onEvent,
-                    onDeviceEvent = deviceViewModel::onEvent
+                    onDeviceEvent = deviceViewModel::onEvent,
+                    onAppStateEvent = appStateViewModel::onEvent
                 )
             }
         }
