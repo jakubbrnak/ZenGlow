@@ -74,13 +74,13 @@ fun NewDeviceScreen(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text("Add new device to group")
+                    Text("Assign device to group")
                 },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate(Screen.Home.route) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Localized description"
+                            contentDescription = ""
                         )
                     }
                 },
@@ -106,7 +106,7 @@ fun NewDeviceScrollContent(
 
     ) {
         Text(
-            "Available devices",
+            "Unassigned devices",
             style = MaterialTheme.typography.titleSmall,
             modifier = Modifier
                 .align(Alignment.Start) // Aligns the text to the start within the column
@@ -150,7 +150,7 @@ fun NewDeviceScrollContent(
                 verticalAlignment = Alignment.CenterVertically
             ){
                 Icon(Icons.Filled.Add, "Add New Device")
-                Text(text = "Add device manually")
+                Text(text = "Add new device")
             }
         }
 

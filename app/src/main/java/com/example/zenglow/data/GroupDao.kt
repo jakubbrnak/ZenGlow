@@ -34,6 +34,10 @@ interface GroupDao {
     suspend fun getGroupWithDevices(groupId: Int): List<GroupWithDevices>
 
     @Transaction
+    @Query("UPDATE device SET groupId = -1 WHERE groupId = :deletedGroupId")
+    suspend fun updateDevicesWithDeletedGroup(deletedGroupId: Int)
+
+    @Transaction
     @Query("SELECT * FROM 'device'")
     fun readAllDevices(): Flow<List<Device>>
 

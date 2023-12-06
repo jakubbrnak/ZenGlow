@@ -39,6 +39,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
@@ -69,8 +72,9 @@ import androidx.core.graphics.ColorUtils
 import androidx.navigation.NavController
 import com.example.zenglow.AddDeviceDialog
 import com.example.zenglow.AddGroupDialog
+import com.example.zenglow.DeleteGroupDialog
 import com.example.zenglow.R
-import com.example.zenglow.RenameDialog
+import com.example.zenglow.RenameGroupDialog
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
 import com.example.zenglow.events.AppStateEvent
@@ -121,7 +125,7 @@ fun HomeScreen(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScrollContent(
     innerPadding: PaddingValues,
@@ -177,6 +181,9 @@ fun MainScrollContent(
             contentPadding = PaddingValues(start = 46.dp, end = 24.dp)
         ) {page->
             if (page < groupState.groups.size ) {
+                var toggleNotification by remember { mutableStateOf(value = false) }
+                var typeNotification by remember { mutableStateOf(value = 0) }                 // TODO (should be read from database)
+                val optionsNotification = listOf("Manual", "Mood")
                 // Render regular pages based on state.groups
                 Card(
                     Modifier
@@ -197,6 +204,57 @@ fun MainScrollContent(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.W900
                         )
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(
+                                    start = 42.dp,
+                                    top = 8.dp,
+                                    end = 42.dp,
+                                    bottom = 8.dp),
+                        ) {
+                            optionsNotification.forEachIndexed { index, label ->
+                                SegmentedButton(
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = optionsNotification.size),
+                                    onClick = { typeNotification = index },
+                                    selected = index == typeNotification               // TODO (should update/linked to database)
+                                ) {
+                                    Text(label)
+                                }
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ){
+                            IconButton(onClick = {
+                                navController.navigate("${Screen.NewDevice.route}/${groupState.groups[page].group.groupId}")}
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
+                            }
+                            IconButton(onClick = {
+                                onGroupEvent(GroupEvent.ShowDeleteDialog(page))
+                            }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "delete group")
+                            }
+
+                            IconButton(onClick = {
+                                onGroupEvent(GroupEvent.ShowRenameDialog(page))
+                            }) {
+                                Icon(Icons.Filled.Create, contentDescription = "rename group")
+                            }
+
+                            if(groupState.isRenaming == page) {
+                                RenameGroupDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
+                            }
+
+                            if(groupState.isDeleting == page) {
+                                DeleteGroupDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
+                            }
+                        }
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
@@ -214,28 +272,6 @@ fun MainScrollContent(
                                         onDeviceEvent = onDeviceEvent,
                                     )
                                 }
-                            }
-                        }
-                        Row{
-                            IconButton(onClick = {
-                                navController.navigate("${Screen.NewDevice.route}/${groupState.groups[page].group.groupId}")}
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
-                            }
-                            IconButton(onClick = {
-                                onGroupEvent(GroupEvent.DeleteGroup(groupState.groups[page].group))
-                            }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "delete group")
-                            }
-
-                            IconButton(onClick = {
-                                onGroupEvent(GroupEvent.ShowRenameDialog(page))
-                            }) {
-                                Icon(Icons.Filled.Create, contentDescription = "rename group")
-                            }
-
-                            if(groupState.isRenaming == page) {
-                                RenameDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
                             }
                         }
                     }
@@ -261,6 +297,17 @@ fun MainScrollContent(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.W900
                         )
+                        Row{
+                            IconButton(onClick = {
+                                onDeviceEvent(DeviceEvent.ShowDialog)
+                            }
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
+                            }
+                            if (deviceState.isAddingDevice) {
+                                AddDeviceDialog(state = deviceState, onEvent = onDeviceEvent)
+                            }
+                        }
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
@@ -280,17 +327,6 @@ fun MainScrollContent(
                                 }
                             }
                         }
-                        Row{
-                            IconButton(onClick = {
-                                onDeviceEvent(DeviceEvent.ShowDialog)
-                                }
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
-                            }
-                            if (deviceState.isAddingDevice) {
-                                AddDeviceDialog(state = deviceState, onEvent = onDeviceEvent)
-                            }
-                        }
                     }
                 }
             } else {
@@ -308,7 +344,7 @@ fun MainScrollContent(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                onGroupEvent(GroupEvent.ShowDialog)
+                                onGroupEvent(GroupEvent.ShowCreateDialog)
                             },
                         ) {
                             Row(
