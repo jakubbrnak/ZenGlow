@@ -39,6 +39,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderColors
 import androidx.compose.material3.SliderDefaults
@@ -69,8 +72,9 @@ import androidx.core.graphics.ColorUtils
 import androidx.navigation.NavController
 import com.example.zenglow.AddDeviceDialog
 import com.example.zenglow.AddGroupDialog
+import com.example.zenglow.DeleteGroupDialog
 import com.example.zenglow.R
-import com.example.zenglow.RenameDialog
+import com.example.zenglow.RenameGroupDialog
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
 import com.example.zenglow.events.AppStateEvent
@@ -121,7 +125,7 @@ fun HomeScreen(
 
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScrollContent(
     innerPadding: PaddingValues,
@@ -177,7 +181,11 @@ fun MainScrollContent(
             contentPadding = PaddingValues(start = 46.dp, end = 24.dp)
         ) {page->
             if (page < groupState.groups.size ) {
-                // Render regular pages based on state.groups
+                var typeControl by remember { mutableStateOf(value = 0) }
+                val optionsControl = listOf("Manual", "Mood")
+                var value by remember { mutableStateOf(0f) }
+                val controlEnable = groupState.groups[page].group.onControl == 1
+
                 Card(
                     Modifier
                         .width(300.dp)
@@ -197,6 +205,66 @@ fun MainScrollContent(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.W900
                         )
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.CenterHorizontally)
+                                .padding(
+                                    start = 42.dp,
+                                    top = 8.dp,
+                                    end = 42.dp,
+                                    bottom = 8.dp
+                                ),
+                        ) {
+                            optionsControl.forEachIndexed { index, label ->
+                                SegmentedButton(
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = optionsControl.size),
+                                    onClick = {
+                                        typeControl = index
+                                        val updatedGroup = if (typeControl == 0) {
+                                            groupState.groups[page].group.copy(onControl = 1)
+                                        } else {
+                                            groupState.groups[page].group.copy(onControl = 0)
+                                        }
+                                        onGroupEvent(GroupEvent.UpdateGroup(updatedGroup))
+                                    },
+                                    selected = index != groupState.groups[page].group.onControl
+                                ) {
+                                    Text(label)
+                                }
+                            }
+                        }
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                        ){
+                            IconButton(onClick = {
+                                navController.navigate("${Screen.NewDevice.route}/${groupState.groups[page].group.groupId}")}
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
+                            }
+                            IconButton(onClick = {
+                                onGroupEvent(GroupEvent.ShowDeleteDialog(page))
+                            }) {
+                                Icon(Icons.Filled.Delete, contentDescription = "delete group")
+                            }
+
+                            IconButton(onClick = {
+                                onGroupEvent(GroupEvent.ShowRenameDialog(page))
+                            }) {
+                                Icon(Icons.Filled.Create, contentDescription = "rename group")
+                            }
+
+                            if(groupState.isUpdating == page) {
+                                RenameGroupDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
+                            }
+
+                            if(groupState.isDeleting == page) {
+                                DeleteGroupDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
+                            }
+                        }
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
@@ -212,36 +280,16 @@ fun MainScrollContent(
                                         device = groupState.groups[page].devices[device],
                                         navController = navController,
                                         onDeviceEvent = onDeviceEvent,
+                                        controlEnable = controlEnable
                                     )
                                 }
-                            }
-                        }
-                        Row{
-                            IconButton(onClick = {
-                                navController.navigate("${Screen.NewDevice.route}/${groupState.groups[page].group.groupId}")}
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
-                            }
-                            IconButton(onClick = {
-                                onGroupEvent(GroupEvent.DeleteGroup(groupState.groups[page].group))
-                            }) {
-                                Icon(Icons.Filled.Delete, contentDescription = "delete group")
-                            }
-
-                            IconButton(onClick = {
-                                onGroupEvent(GroupEvent.ShowRenameDialog(page))
-                            }) {
-                                Icon(Icons.Filled.Create, contentDescription = "rename group")
-                            }
-
-                            if(groupState.isRenaming == page) {
-                                RenameDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
                             }
                         }
                     }
                 }
             } else if (page == groupState.groups.size ) {
                 // Render the extra page (new content for the additional page)
+                val controlEnable = true
                 Card(
                     Modifier
                         .width(300.dp)
@@ -261,6 +309,17 @@ fun MainScrollContent(
                             fontSize = 30.sp,
                             fontWeight = FontWeight.W900
                         )
+                        Row{
+                            IconButton(onClick = {
+                                onDeviceEvent(DeviceEvent.ShowDialog)
+                            }
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
+                            }
+                            if (deviceState.isAddingDevice) {
+                                AddDeviceDialog(state = deviceState, onEvent = onDeviceEvent)
+                            }
+                        }
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
@@ -276,19 +335,9 @@ fun MainScrollContent(
                                         device = deviceState.freeDevices[device],
                                         navController = navController,
                                         onDeviceEvent = onDeviceEvent,
+                                        controlEnable = controlEnable
                                     )
                                 }
-                            }
-                        }
-                        Row{
-                            IconButton(onClick = {
-                                onDeviceEvent(DeviceEvent.ShowDialog)
-                                }
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = "Add New Device")
-                            }
-                            if (deviceState.isAddingDevice) {
-                                AddDeviceDialog(state = deviceState, onEvent = onDeviceEvent)
                             }
                         }
                     }
@@ -308,7 +357,7 @@ fun MainScrollContent(
                     ) {
                         FloatingActionButton(
                             onClick = {
-                                onGroupEvent(GroupEvent.ShowDialog)
+                                onGroupEvent(GroupEvent.ShowCreateDialog)
                             },
                         ) {
                             Row(
@@ -354,8 +403,14 @@ fun GroupDeviceItem(
     modifier: Modifier,
     device: Device,
     navController: NavController,
-    onDeviceEvent: (DeviceEvent) -> Unit
+    onDeviceEvent: (DeviceEvent) -> Unit,
+    controlEnable: Boolean
 ) {
+    val enableColor = if (controlEnable) {
+        Color.Black
+    } else {
+        Color.Gray
+    }
         Column(
             modifier = Modifier
                 .background(Color.White)
@@ -373,7 +428,7 @@ fun GroupDeviceItem(
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(id = R.drawable.emoji_objects),
+                            painter = painterResource(id = R.drawable.bulb),
                             contentDescription = "bulbIcon",
                             modifier = Modifier
                                 .size(24.dp)
@@ -381,7 +436,7 @@ fun GroupDeviceItem(
                     }
                 },
                 trailingContent = {
-                    var checked by remember { mutableStateOf(true) }
+                    var checked = device.onState == 1
                     Switch(
                         modifier = Modifier
                             .scale(0.8f)
@@ -389,6 +444,12 @@ fun GroupDeviceItem(
                         checked = checked,
                         onCheckedChange = {
                             checked = it
+                            val updatedDevice = if (checked) {
+                                device.copy(onState = 1)
+                            } else {
+                                device.copy(onState = 0)
+                            }
+                            onDeviceEvent(DeviceEvent.UpdateDevice(updatedDevice))
                         }
                     )
                 }
@@ -403,11 +464,16 @@ fun GroupDeviceItem(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.weight(1f) // Expandable inner Row
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.brightness_empty),
+                    Icon(
+                        painter = painterResource(id = R.drawable.brightness_low),
                         contentDescription = "low brightness",
                         modifier = Modifier
-                            .size(20.dp)
+                            .size(20.dp),
+                        tint = if (device.onState == 1) {
+                            enableColor
+                        } else {
+                            Color.Gray
+                        },
                     )
                     var value by remember { mutableStateOf(device.brightness) }
                     Slider(
@@ -418,27 +484,40 @@ fun GroupDeviceItem(
                             val updatedDevice = device.copy(brightness = it)
                             onDeviceEvent(DeviceEvent.UpdateDevice(updatedDevice))
                         },
+                        //Slider is disabled when the device switched is disabled, otherwise it
+                        //is linked to the Manual/Mood Boost switch
+                        enabled = if (device.onState == 1) {
+                            controlEnable
+                        } else {
+                            false
+                        },
                         modifier = Modifier
                             .width(130.dp)
                             .height(24.dp)
                             .padding(8.dp)
                     )
-                    Image(
+                    Icon(
                         painter = painterResource(id = R.drawable.brightness_high),
                         contentDescription = "high brightness",
                         modifier = Modifier
-                            .size(20.dp)
+                            .size(20.dp),
+                        tint = if (device.onState == 1) {
+                            enableColor
+                        } else {
+                            Color.Gray
+                        },
                     )
                 }
                 //Button to device detail page
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.tune),
                     contentDescription = "open device detail page",
                     modifier = Modifier
                         .size(24.dp)
-                        .clickable {
+                        .let { if (controlEnable) it.clickable {
                             navController.navigate("${Screen.DeviceConfig.route}/${device.deviceId}")
-                        }
+                        }else it },
+                    tint = enableColor
                 )
             }
         }
@@ -566,8 +645,8 @@ fun VerticalTemperatureSlider(
                     .size(36.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.device_thermostat_rotated),
+                Icon(
+                    painter = painterResource(id = R.drawable.thermostat),
                     contentDescription = "temperature Icon",
                     modifier = Modifier
                         .size(30.dp)

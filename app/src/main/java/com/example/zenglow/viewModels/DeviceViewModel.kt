@@ -90,7 +90,8 @@ class DeviceViewModel(
                     groupId = event.device.groupId,
                     temperature = event.device.temperature,
                     brightness = event.device.brightness,
-                    color = event.device.color
+                    color = event.device.color,
+                    onState = event.device.onState
                 )
 
                 viewModelScope.launch {

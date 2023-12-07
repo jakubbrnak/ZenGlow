@@ -26,24 +26,15 @@ class GroupViewModel(
 
     fun onEvent(event: GroupEvent) {
         when(event) {
-            //Delete group
-            is GroupEvent.DeleteGroup -> {
-                viewModelScope.launch {
-                    dao.deleteGroup(event.group)
-                }
-            }
             //Save new group
             is GroupEvent.SaveGroup -> {
                 val name = state.value.name
                 if(name.isBlank()) {
                     return
                 }
-
                 val group = Group(
                     name = name
                 )
-
-
                 viewModelScope.launch {
                     dao.upsertGroup(group)
                 }
@@ -58,12 +49,12 @@ class GroupViewModel(
                     name = event.name
                 ) }
             }
-            is GroupEvent.ShowDialog -> {
+            is GroupEvent.ShowCreateDialog -> {
                 _state.update { it.copy(
                     isAddingGroup = true
                 ) }
             }
-            is GroupEvent.HideDialog -> {
+            is GroupEvent.HideCreateDialog -> {
                 _state.update { it.copy (
                     isAddingGroup = false
                 ) }
@@ -71,13 +62,13 @@ class GroupViewModel(
 
             is GroupEvent.ShowRenameDialog ->{
                 _state.update {it.copy (
-                    isRenaming = event.page
+                    isUpdating = event.page
                 )}
             }
 
             is GroupEvent.HideRenameDialog ->{
                 _state.update {it.copy (
-                    isRenaming = -1
+                    isUpdating = -1
                 )}
             }
 
@@ -86,7 +77,8 @@ class GroupViewModel(
 
                 val group = Group(
                     name = name,
-                    groupId = event.group.groupId
+                    groupId = event.group.groupId,
+                    onControl = event.group.onControl
                 )
 
                 viewModelScope.launch {
@@ -94,10 +86,43 @@ class GroupViewModel(
                 }
 
                 _state.update { it.copy(
-                    isRenaming =  -1,
+                    isUpdating =  -1,
                     name = ""
                 ) }
 
+            }
+
+            is GroupEvent.UpdateGroup ->{
+
+                val group = Group(
+                    name = event.group.name,
+                    groupId = event.group.groupId,
+                    onControl = event.group.onControl
+                )
+
+                viewModelScope.launch {
+                    dao.upsertGroup(group)
+                }
+            }
+
+            is GroupEvent.ShowDeleteDialog ->{
+                _state.update {it.copy (
+                    isDeleting = event.page
+                )}
+            }
+
+            is GroupEvent.HideDeleteDialog ->{
+                _state.update {it.copy (
+                    isDeleting = -1
+                )}
+            }
+
+            //Delete group and set its devices to unassigned
+            is GroupEvent.DeleteGroup -> {
+                viewModelScope.launch {
+                    dao.updateDevicesWithDeletedGroup(event.group.groupId)
+                    dao.deleteGroup(event.group)
+                }
             }
         }
     }

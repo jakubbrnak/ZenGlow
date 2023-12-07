@@ -1,6 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 import android.annotation.SuppressLint
+import android.graphics.ImageDecoder.OnPartialImageListener
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -23,6 +24,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +41,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.zenglow.R
 import com.example.zenglow.Screen
+import com.example.zenglow.events.AppStateEvent
+import com.example.zenglow.states.AppStateState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.sql.Types.NULL
@@ -50,13 +54,16 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MoodBoostScreen(navController: NavController) {
+fun MoodBoostScreen(navController: NavController,
+                    appStateState: AppStateState,
+                    onAppStateEvent: (AppStateEvent) -> Unit,
+                    ) {
 
     Scaffold(
-        topBar = { MoodBoostTopBar { navController.navigateUp() } },
+        topBar = { MoodBoostTopBar { navController.navigateUp()}},
 
     ) {
-        innerPadding -> MainScrollContent(innerPadding, navController)
+        innerPadding -> MainScrollContent(innerPadding, navController, appStateState, onAppStateEvent)
     }
 }
 
@@ -64,7 +71,10 @@ fun MoodBoostScreen(navController: NavController) {
 @Composable
 fun MainScrollContent(
     innerPadding: PaddingValues,
-    navController: NavController,){
+    navController: NavController,
+    appStateState: AppStateState,
+    onAppStateEvent: (AppStateEvent) -> Unit,
+    ){
 
     Column(
         modifier = Modifier
@@ -76,27 +86,42 @@ fun MainScrollContent(
     ) {
         Text(
             "Current Mood",
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 20.dp)  // Adds padding to the start
         )
-        val mypagerState = rememberPagerState(pageCount = {
-            4
-        })
 
-        ImagePager(mypagerState)
+        val currentPage = appStateState.currentMood
+        val mypagerState = rememberPagerState(
+                            pageCount = {7},
+                            initialPage = currentPage
+                            )
+        LaunchedEffect(mypagerState) {
+            // Collect from the a snapshotFlow reading the currentPage
+            snapshotFlow { mypagerState.currentPage }.collect { page ->
+                // Do something with each page change, for example:
+                val updatedAppState = appStateState.copy(currentMood = mypagerState.currentPage)
+                onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+            }
+        }
+
+        val imageList = listOf(R.drawable.mood_working3, R.drawable.mood_vibrant, R.drawable.mood_morning, R.drawable.fess_relax, R.drawable.mood_evening, R.drawable.mood_sleep, R.drawable.mood_neutral)
+        val moodList = listOf("Focus", "Vibrant", "Morning", "Relax", "Evening", "Sleep", "Neutral")
+
+        ImagePager(mypagerState, imageList, moodList)
         Spacer(modifier = Modifier.height(10.dp))
+
+        Spacer(modifier = Modifier.height(40.dp))
         Text(
             "Suggested Mood",
-            style = MaterialTheme.typography.titleSmall,
+            style = MaterialTheme.typography.titleMedium,
             modifier = Modifier
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 10.dp)  // Adds padding to the start
         )
-        OverallScore(navController)
-
-        SuggestedMood(mypagerState)
+        OverallScore(navController, appStateState)
+        SuggestedMood(mypagerState,appStateState, moodList)
 
 
     }
@@ -105,11 +130,12 @@ fun MainScrollContent(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagePager(
-    pagerState: PagerState,
-){
+        pagerState: PagerState,
+        imageList: List<Int>,
+        moodList: List<String>
+    ){
 
-    val imageList = listOf(R.drawable.mood_working3, R.drawable.mood_sleep, R.drawable.mood_working3, R.drawable.mood_sleep)
-    val moodList = listOf("Working", "Sleep", "Sport", "Chill")
+
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(start = 46.dp, end = 24.dp, top = 20.dp)
@@ -142,7 +168,6 @@ fun ImagePager(
             }
         }
     }
-
 }
 
 @Composable
@@ -171,7 +196,12 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
 
 
 @Composable
-fun OverallScore(navController: NavController){
+fun OverallScore(
+            navController: NavController,
+            appStateState: AppStateState
+        ){
+
+    val score = ((appStateState.energy*100)*0.3 + (100 - appStateState.stressIndex*100)*0.3 + ((appStateState.mentalState+1)*20)*0.3).toInt()
     Column(
         modifier = Modifier
             .padding(top = 10.dp)
@@ -203,14 +233,13 @@ fun OverallScore(navController: NavController){
                     letterSpacing = 0.sp
                 )
                 Text(
-                    text = "54",
+                    text = "$score",
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.W300,
                     fontSize = 90.sp
                 )
 
-                val databaseValue by remember { mutableStateOf(0.75f) }
-                DatabaseProgressIndicator(databaseProgress = databaseValue)
+                DatabaseProgressIndicator(databaseProgress = (score.toFloat()/100))
                 Row(modifier = Modifier
                     .padding(top = 30.dp)){
                     TimeDisplay()
@@ -279,7 +308,41 @@ fun getCurrentTime(): String {
 }
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SuggestedMood(pagerState: PagerState) {
+fun SuggestedMood(pagerState: PagerState,
+                  appStateState: AppStateState,
+                  moodList: List<String>
+                  ) {
+
+    var currentTime by remember { mutableStateOf(getCurrentTime().take(2)) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            currentTime = getCurrentTime().take(2)
+            delay(1000) // Wait for a second
+        }
+    }
+
+    val energy = appStateState.energy
+    val stressLevel = appStateState.stressIndex
+    val mental = appStateState.mentalState
+
+    var suggested = 6
+
+    if(energy < 0.20 || currentTime.toInt() >= 22 || currentTime.toInt() < 6){
+        suggested = 5
+    } else if(stressLevel > 0.75){
+        suggested = 3
+    } else if(stressLevel < 0.5 && mental > 2){
+        suggested = 0
+    } else if(energy > 0.75 && mental >= 3){
+        suggested = 1
+    } else if(currentTime.toInt() in 6..10){
+        suggested = 2
+    } else if(currentTime.toInt() in 11..15){
+        suggested = 6
+    } else if(currentTime.toInt() in 16..21){
+        suggested = 4
+    }
+
     Column(
         modifier = Modifier
             .padding(top = 10.dp)
@@ -302,7 +365,7 @@ fun SuggestedMood(pagerState: PagerState) {
             ) {
 
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Chill", style = MaterialTheme.typography.titleMedium,)
+                Text(moodList[suggested], style = MaterialTheme.typography.headlineMedium,)
 
 
                 val coroutineScope = rememberCoroutineScope()
@@ -312,7 +375,7 @@ fun SuggestedMood(pagerState: PagerState) {
                         val animationSpec: AnimationSpec<Float> = TweenSpec(
                             durationMillis = 800
                         )
-                        pagerState.animateScrollToPage(3, animationSpec = animationSpec)
+                        pagerState.animateScrollToPage(suggested, animationSpec = animationSpec)
                     }
                 }) // Button to the right
             }
@@ -338,7 +401,6 @@ fun FilledButtonExample(onClick: () -> Unit) {
         }
     }
 }
-
 
 @Composable
 fun DatabaseProgressIndicator(databaseProgress: Float) {

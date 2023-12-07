@@ -6,6 +6,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "device")
 data class Device(
+    @ColumnInfo(name = "onState", defaultValue = "1")
+    val onState: Int = 1,
     @ColumnInfo(name = "temperature", defaultValue = "0.0")
     val temperature: Float = 0.0f,
     @ColumnInfo(name = "brightness", defaultValue = "1.0")
