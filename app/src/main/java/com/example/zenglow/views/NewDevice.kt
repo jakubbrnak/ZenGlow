@@ -188,7 +188,7 @@ fun DeviceItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.emoji_objects),
+                        painter = painterResource(id = R.drawable.bulb),
                         contentDescription = "bulbIcon",
                         modifier = Modifier
                             .size(36.dp)

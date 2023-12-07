@@ -62,13 +62,13 @@ class GroupViewModel(
 
             is GroupEvent.ShowRenameDialog ->{
                 _state.update {it.copy (
-                    isRenaming = event.page
+                    isUpdating = event.page
                 )}
             }
 
             is GroupEvent.HideRenameDialog ->{
                 _state.update {it.copy (
-                    isRenaming = -1
+                    isUpdating = -1
                 )}
             }
 
@@ -77,7 +77,8 @@ class GroupViewModel(
 
                 val group = Group(
                     name = name,
-                    groupId = event.group.groupId
+                    groupId = event.group.groupId,
+                    onControl = event.group.onControl
                 )
 
                 viewModelScope.launch {
@@ -85,10 +86,23 @@ class GroupViewModel(
                 }
 
                 _state.update { it.copy(
-                    isRenaming =  -1,
+                    isUpdating =  -1,
                     name = ""
                 ) }
 
+            }
+
+            is GroupEvent.UpdateGroup ->{
+
+                val group = Group(
+                    name = event.group.name,
+                    groupId = event.group.groupId,
+                    onControl = event.group.onControl
+                )
+
+                viewModelScope.launch {
+                    dao.upsertGroup(group)
+                }
             }
 
             is GroupEvent.ShowDeleteDialog ->{

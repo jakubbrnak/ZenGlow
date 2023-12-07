@@ -11,6 +11,7 @@ sealed interface GroupEvent {
     data class ShowRenameDialog(val page: Int): GroupEvent
     object HideRenameDialog: GroupEvent
     data class RenameGroup(val group: Group): GroupEvent
+    data class UpdateGroup(val group: Group): GroupEvent
 
     data class ShowDeleteDialog(val page: Int): GroupEvent
     object HideDeleteDialog: GroupEvent
