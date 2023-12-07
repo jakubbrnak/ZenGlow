@@ -94,8 +94,11 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
-    //material design icons
+    // Material design icons
     implementation ("androidx.compose.material:material-icons-extended:1.5.3")
+
+    // Color picker componenents
+    implementation("com.github.skydoves:colorpicker-compose:1.0.6")
 
 
 }
