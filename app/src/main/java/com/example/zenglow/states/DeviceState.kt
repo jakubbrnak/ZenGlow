@@ -10,5 +10,6 @@ data class DeviceState(
     val color: Int = 0xFFFFFF,
     val temperature: Float = 0f,
     val isAddingDevice: Boolean = false,
-    val isRenaming: Int = -1
+    val isRenaming: Int = -1,
+    val name: String = "",
 )

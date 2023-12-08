@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.zenglow.data.GroupDao
 import com.example.zenglow.data.entities.Device
 import com.example.zenglow.events.DeviceEvent
+import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -12,6 +13,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+/*
+ FILE: DeviceViewModel.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: ViewModel for handling frontend requests and backend operations for Device entities
+ */
 
 class DeviceViewModel(
     private val dao: GroupDao
@@ -72,7 +79,7 @@ class DeviceViewModel(
 
             is DeviceEvent.ShowRenameDialog ->{
                 _state.update {it.copy (
-                    isRenaming = event.page
+                    isRenaming = event.deviceId
                 )}
             }
 
@@ -80,6 +87,31 @@ class DeviceViewModel(
                 _state.update {it.copy (
                     isRenaming = -1
                 )}
+            }
+
+
+            is DeviceEvent.RenameDevice ->{
+                val name = state.value.name
+
+                val device = Device(
+                    displayName = name,
+                    deviceId = event.device.deviceId,
+                    groupId = event.device.groupId,
+                    temperature = event.device.temperature,
+                    brightness = event.device.brightness,
+                    color = event.device.color,
+                    onState = event.device.onState
+                )
+
+                viewModelScope.launch {
+                    dao.upsertDevice(device)
+                }
+
+                _state.update { it.copy(
+                    isRenaming =  -1,
+                    name = ""
+                ) }
+
             }
 
             is DeviceEvent.UpdateDevice ->{

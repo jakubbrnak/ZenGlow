@@ -13,6 +13,12 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/*
+ FILE: DeviceViewModel.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: ViewModel for handling frontend requests and backend operations for Group entities
+ */
+
 class GroupViewModel(
     private val dao: GroupDao
 ): ViewModel() {

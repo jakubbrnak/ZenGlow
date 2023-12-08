@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -70,13 +71,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.navigation.NavController
-import com.example.zenglow.AddDeviceDialog
-import com.example.zenglow.AddGroupDialog
-import com.example.zenglow.DeleteGroupDialog
+import com.example.zenglow.dialogs.AddDeviceDialog
+import com.example.zenglow.dialogs.AddGroupDialog
+import com.example.zenglow.dialogs.DeleteGroupDialog
 import com.example.zenglow.R
-import com.example.zenglow.RenameGroupDialog
+import com.example.zenglow.dialogs.RenameGroupDialog
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
+import com.example.zenglow.dialogs.RenameDeviceDialog
 import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
@@ -125,6 +127,11 @@ fun HomeScreen(
 
 }
 
+/*
+    DESCRIPTION:    HomeScreen -> MainScrollContent
+                    Component for displaying the main content of the page (mood boost button, general sliders
+                    and a pager of device groups)
+*/
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MainScrollContent(
@@ -200,6 +207,8 @@ fun MainScrollContent(
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
+                            modifier = Modifier
+                                .padding(top= 8.dp),
                             text = "${groupState.groups[page].group.name}",
                             textAlign = TextAlign.Center,
                             fontSize = 30.sp,
@@ -213,7 +222,6 @@ fun MainScrollContent(
                                     start = 42.dp,
                                     top = 8.dp,
                                     end = 42.dp,
-                                    bottom = 8.dp
                                 ),
                         ) {
                             optionsControl.forEachIndexed { index, label ->
@@ -265,12 +273,15 @@ fun MainScrollContent(
                                 DeleteGroupDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
                             }
                         }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = Color.Black
+                        )
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                                .background(Color.White, RoundedCornerShape(16.dp))
+                                .background(Color.White, RoundedCornerShape(bottomStart=16.dp, bottomEnd = 16.dp))
                                 .weight(1f)
                         ) {
                             LazyColumn(contentPadding = PaddingValues(12.dp)) {
@@ -280,7 +291,8 @@ fun MainScrollContent(
                                         device = groupState.groups[page].devices[device],
                                         navController = navController,
                                         onDeviceEvent = onDeviceEvent,
-                                        controlEnable = controlEnable
+                                        controlEnable = controlEnable,
+                                        state = deviceState
                                     )
                                 }
                             }
@@ -304,6 +316,8 @@ fun MainScrollContent(
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
+                            modifier = Modifier
+                                .padding(top= 8.dp),
                             text = "Unassigned devices",
                             textAlign = TextAlign.Center,
                             fontSize = 30.sp,
@@ -320,12 +334,15 @@ fun MainScrollContent(
                                 AddDeviceDialog(state = deviceState, onEvent = onDeviceEvent)
                             }
                         }
+                        HorizontalDivider(
+                            thickness = 1.dp,
+                            color = Color.Black
+                        )
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
-                                .background(Color.White, RoundedCornerShape(16.dp))
+                                .background(Color.White, RoundedCornerShape(bottomStart=16.dp, bottomEnd = 16.dp))
                                 .weight(1f)
                         ) {
                             LazyColumn(contentPadding = PaddingValues(12.dp)) {
@@ -335,7 +352,8 @@ fun MainScrollContent(
                                         device = deviceState.freeDevices[device],
                                         navController = navController,
                                         onDeviceEvent = onDeviceEvent,
-                                        controlEnable = controlEnable
+                                        controlEnable = controlEnable,
+                                        state = deviceState
                                     )
                                 }
                             }
@@ -404,7 +422,8 @@ fun GroupDeviceItem(
     device: Device,
     navController: NavController,
     onDeviceEvent: (DeviceEvent) -> Unit,
-    controlEnable: Boolean
+    controlEnable: Boolean,
+    state: DeviceState
 ) {
     val enableColor = if (controlEnable) {
         Color.Black
@@ -423,7 +442,7 @@ fun GroupDeviceItem(
                         modifier = Modifier
                             .border(1.dp, Color.Black, CircleShape)
                             .clip(CircleShape)
-                            .background(color = Color(device.color))
+                            .background(color = homeColorConvert(Color(device.color), device.brightness, device.temperature) )
                             .size(30.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -527,6 +546,10 @@ fun GroupDeviceItem(
         )
     }
 
+/*
+    DESCRIPTION:    HomeScreen -> moodBoostBtn
+                    Component for displaying the button to the Mood Boost page
+*/
 @Composable
 fun moodBoostBtn(
     navController: NavController
@@ -542,9 +565,10 @@ fun moodBoostBtn(
 
 
 /*
-Composable for a vertical slider controlling the overall brightness of all lights
-The color of the icon in the slider thumb changes dynamically depending on the slider position
- */
+    DESCRIPTION:    HomeScreen -> VerticalBrightnessSlider
+                    Composable for a vertical slider controlling the overall brightness of all lights
+                    The color of the icon in the slider thumb changes dynamically depending on the slider position
+*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerticalBrightnessSlider(
@@ -612,9 +636,10 @@ fun VerticalBrightnessSlider(
 }
 
 /*
-Composable for a vertical slider controlling the overall temperature of all lights
-The color of the slider thumb changes dynamically depending on the slider position
- */
+    DESCRIPTION:    HomeScreen -> VerticalTemperatureSlider
+                    Composable for a vertical slider controlling the overall temperature of all lights
+                    The color of the slider thumb changes dynamically depending on the slider position
+*/
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VerticalTemperatureSlider(
@@ -699,3 +724,33 @@ private fun calculateBackgroundColor(value: Float, color1: Color, color2: Color)
 
     return ColorUtils.blendARGB(color1Int, color2Int, ratio)
 }
+
+@Composable
+fun homeColorConvert(hue: Color, brightness: Float, temperature: Float): Color {
+
+    // Scale the colors based on the brightness
+    val scaledRed = hue.red * brightness
+    val scaledGreen = hue.green * brightness
+    val scaledBlue = hue.blue * brightness
+
+    // Set the target color based on the temperature
+    val warmColor = Color(255, 197, 143) // Warm color
+
+    // Scale the colors based on the temperature
+    val red = interpolateColor(scaledRed, warmColor.red, temperature)
+    val green = interpolateColor(scaledGreen, warmColor.green, temperature)
+    val blue = interpolateColor(scaledBlue, warmColor.blue, temperature)
+
+    // Create a new Color object with the scaled components
+    return Color(red = red, green = green, blue = blue)
+}
+
+fun homeInterpolateColor(start: Float, end: Float, t: Float): Float {
+    val adjustedT = t * 0.7f
+    val smoothedT = adjustedT * adjustedT * (3f - 2f * adjustedT)
+
+    return start + (end - start) * smoothedT
+}
+
+
+

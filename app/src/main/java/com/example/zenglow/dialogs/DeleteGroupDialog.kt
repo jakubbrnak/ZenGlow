@@ -1,4 +1,4 @@
-package com.example.zenglow
+package com.example.zenglow.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

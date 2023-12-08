@@ -1,5 +1,4 @@
-package com.example.zenglow
-
+package com.example.zenglow.dialogs
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,57 +6,51 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.zenglow.data.entities.Group
+import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
-import com.example.zenglow.states.GroupState
+import com.example.zenglow.states.DeviceState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RenameGroupDialog(
-    state: GroupState,
-    onEvent: (GroupEvent) -> Unit,
-    modifier: Modifier = Modifier,
-    group: Group
+fun AddDeviceDialog(
+    state: DeviceState,
+    onEvent: (DeviceEvent) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     AlertDialog(
         modifier = modifier,
         onDismissRequest = {
-            onEvent(GroupEvent.HideRenameDialog)
+            onEvent(DeviceEvent.HideDialog)
         },
         confirmButton = {
-
-            Button(onClick = {
-                onEvent(GroupEvent.RenameGroup(group))
-            }) {
-                Text(text="Confirm")
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Button(onClick = {
+                    onEvent(DeviceEvent.SaveDevice)
+                }) {
+                    Text(text="Save device")
+                }
             }
         },
-        dismissButton = {
-            Button(onClick = {
-                onEvent(GroupEvent.HideRenameDialog)
-            }) {
-                Text(text="Cancel")
-            }
-        },
-        title = { Text(text= "Rename Group")},
+        title = { Text(text= "Add Device")},
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 TextField(
-                    value = state.name,
+                    value = state.displayName,
                     onValueChange = {
-                        onEvent(GroupEvent.SetName(it))
+                        onEvent(DeviceEvent.SetName(it))
                     },
                     placeholder = {
-                        Text(text = "Group name")
+                        Text(text = "Device name")
                     }
                 )
             }

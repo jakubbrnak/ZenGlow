@@ -15,6 +15,14 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+
+/*
+ FILE: AppStateViewModel.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: ViewModel for handling frontend requests and backend operations of the app's state, mainly for the moodBoost functionality
+              and overall brightness and temperature levels
+
+ */
 class AppStateViewModel(
     private val dao: GroupDao
 ) : ViewModel() {

@@ -40,7 +40,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -58,8 +57,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.zenglow.Screen
+import com.example.zenglow.data.entities.Device
+import com.example.zenglow.dialogs.RenameDeviceDialog
+import com.example.zenglow.dialogs.RenameGroupDialog
 import com.example.zenglow.events.DeviceEvent
+import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 import com.github.skydoves.colorpicker.compose.*
 
@@ -71,19 +75,18 @@ import com.github.skydoves.colorpicker.compose.*
 fun DeviceConfigScreen(
     navController: NavController,
     state: DeviceState,
-    onEvent: (DeviceEvent) -> Unit
+    onEvent: (DeviceEvent) -> Unit,
 ) {
 
-    /* TODO: Implement logic in function
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     var deviceId = -1
-    navBackStackEntry?.arguments?.getInt("deviceId")?.let {selectedGroupId ->
-        deviceId = selectedGroupId
+    navBackStackEntry?.arguments?.getInt("deviceId")?.let {selectedDeviceId ->
+        deviceId = selectedDeviceId
     } ?: run {
         deviceId = -1
     }
-    val deviceById: Device? = state.devices.find { it.deviceId == deviceId }
-    */
+    val deviceById: Device = state.devices.find { it.deviceId == deviceId }
+        ?:  Device(deviceId = -1, groupId = -1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "")
 
     var showDialog by remember { mutableStateOf(false) }
 
@@ -96,8 +99,15 @@ fun DeviceConfigScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.onBackground)
         ) {
-            DeviceConfigName(onInfoButtonClick = { showDialog = true })
-            DeviceConfigEditPicker()
+            DeviceConfigName(
+                onEvent = onEvent,
+                state = DeviceState(),
+                device = deviceById
+            )
+            DeviceConfigEditPicker(
+                device = deviceById,
+                onDeviceEvent = onEvent
+            )
             DeviceConfigDoneButton(navController = navController)
         }
 
@@ -112,6 +122,7 @@ fun DeviceConfigScreen(
     DESCRIPTION:    DeviceConfigScreen -> DeviceConfigTopBar
                     Top bar for the DeviceConfig screen, with a back button to return to the home screen
 */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceConfigTopBar(navController: NavController) {
     CenterAlignedTopAppBar(
@@ -172,7 +183,12 @@ fun DeviceConfigRename(onDismissRequest: () -> Unit) {
                     Component for displaying the device's name with an edit button which opens a modal
 */
 @Composable
-fun DeviceConfigName(onInfoButtonClick: () -> Unit) {
+fun DeviceConfigName(
+    onEvent: (DeviceEvent) -> Unit,
+    state: DeviceState,
+    device: Device,
+) {
+    val deviceId = device.deviceId
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -181,7 +197,7 @@ fun DeviceConfigName(onInfoButtonClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "Ni**as in Paris",
+            text =  device.displayName,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             color = MaterialTheme.colorScheme.background,
@@ -194,14 +210,23 @@ fun DeviceConfigName(onInfoButtonClick: () -> Unit) {
             modifier = Modifier
                 .padding(end = 10.dp)
         )
-        IconButton(onClick = { onInfoButtonClick() }) {
+        IconButton(
+            onClick = {
+                Log.d("MyTag", "${device.deviceId}")
+                onEvent(DeviceEvent.ShowRenameDialog(deviceId))
+
+            }
+        ) {
             Icon(
                 imageVector = Icons.Outlined.Edit,
-                contentDescription = "Return back to home-page",
+                contentDescription = "Edit device name",
                 tint = MaterialTheme.colorScheme.background,
                 modifier = Modifier.size(36.dp)
             )
         }
+    }
+    if(state.isRenaming == device.deviceId) {
+        RenameDeviceDialog(state = state, onEvent = onEvent, device = device)
     }
 }
 
@@ -238,18 +263,24 @@ fun DeviceConfigDoneButton(navController: NavController) {
                     Component for displaying the color picker and brightness/temperature sliders
 */
 @Composable
-fun DeviceConfigEditPicker() {
+fun DeviceConfigEditPicker(
+    device: Device,
+    onDeviceEvent: (DeviceEvent) -> Unit
+) {
     val controller = rememberColorPickerController()
 
     // Database variables
-    var color = Color.White
-    var brightness by remember { mutableFloatStateOf(1.0f) }
-    var temperature by remember { mutableFloatStateOf(0.0f) }
+    var color = device.color
+    var brightness = device.brightness
+    var temperature = device.temperature
 
     // Internal variables
     val pickerController = rememberColorPickerController()
+
     val interactionSource = remember { MutableInteractionSource() }
     val displayColor = colorConvert(pickerController.selectedColor.value, brightness, temperature)
+    val updatedDevice = device.copy(color = colorHexInt(pickerController.selectedColor.value))
+    onDeviceEvent(DeviceEvent.UpdateDevice(updatedDevice))
 
     Column(
         modifier = Modifier
@@ -280,8 +311,11 @@ fun DeviceConfigEditPicker() {
                     bottom = 10.dp
                 ),
             controller = pickerController,
-            initialColor = color,
-            onColorChanged = { Log.d("Color", it.hexCode) }
+            initialColor = Color(color),
+            onColorChanged = {
+                Log.d("Color", it.hexCode)
+
+            }
         )
 
         /*
@@ -311,7 +345,7 @@ fun DeviceConfigEditPicker() {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .border (1.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
+                    .border(1.dp, MaterialTheme.colorScheme.onBackground, CircleShape)
                     .width(120.dp)
                     .height(42.dp)
             ) {
@@ -462,7 +496,11 @@ fun DeviceConfigEditPicker() {
             )
             Slider(
                 value = brightness,
-                onValueChange = { brightness = it },
+                onValueChange = {
+                    brightness = it
+                    val updatedDevice = device.copy(brightness = it)
+                    onDeviceEvent(DeviceEvent.UpdateDevice(updatedDevice))
+                },
                 modifier = Modifier
                     .width(250.dp)
                     .padding(
@@ -500,7 +538,11 @@ fun DeviceConfigEditPicker() {
             )
             Slider(
                 value = temperature,
-                onValueChange = { temperature = it },
+                onValueChange = {
+                    temperature = it
+                    val updatedDevice = device.copy(temperature = it)
+                    onDeviceEvent(DeviceEvent.UpdateDevice(updatedDevice))
+                },
                 modifier = Modifier
                     .width(250.dp)
                     .padding(
@@ -529,6 +571,14 @@ fun colorHex(color: Color): String {
     return String.format("#%02X%02X%02X", red, green, blue)
 }
 
+fun colorHexInt(color: Color): Int {
+    val red = (color.red * 255).toInt()
+    val green = (color.green * 255).toInt()
+    val blue = (color.blue * 255).toInt()
+
+    return (red shl 16) or (green shl 8) or blue
+}
+
 
 /*
     DESCRIPTION:    colorBrightness
@@ -548,6 +598,7 @@ fun colorBrightness(color: Color): Double {
     DESCRIPTION:    colorConvert
                     Function takes in a Hue, Brightness, and Temperature and returns a Color
 */
+@Composable
 fun colorConvert(hue: Color, brightness: Float, temperature: Float): Color {
 
     // Scale the colors based on the brightness

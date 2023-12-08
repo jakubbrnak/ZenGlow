@@ -42,7 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.zenglow.AddDeviceDialog
+import com.example.zenglow.dialogs.AddDeviceDialog
 import com.example.zenglow.R
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
@@ -91,6 +91,10 @@ fun NewDeviceScreen(
     }
 }
 
+/*
+    DESCRIPTION:    NewDevice -> NewDeviceScrollContent
+                    Composable for displaying the content of the page
+*/
 @Composable
 fun NewDeviceScrollContent(
     innerPadding: PaddingValues,
@@ -160,6 +164,10 @@ fun NewDeviceScrollContent(
     }
 }
 
+/*
+    DESCRIPTION:    NewDevice -> DeviceItem
+                    Composable for displaying a device in a lazy column
+*/
 @Composable
 fun DeviceItem(
     modifier: Modifier,
