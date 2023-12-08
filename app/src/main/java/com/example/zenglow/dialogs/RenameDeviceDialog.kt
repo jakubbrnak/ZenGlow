@@ -20,41 +20,41 @@ fun RenameDeviceDialog(
     modifier: Modifier = Modifier,
     device: Device
 ) {
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = {
-            onEvent(DeviceEvent.HideRenameDialog)
-        },
-        confirmButton = {
-
-            Button(onClick = {
-                onEvent(DeviceEvent.RenameDevice(device))
-            }) {
-                Text(text="Confirm")
-            }
-        },
-        dismissButton = {
-            Button(onClick = {
-                onEvent(DeviceEvent.HideRenameDialog)
-            }) {
-                Text(text="Cancel")
-            }
-        },
-        title = { Text(text= "Rename Device") },
-        text = {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                TextField(
-                    value = state.name,
-                    onValueChange = {
-                        onEvent(DeviceEvent.SetName(it))
-                    },
-                    placeholder = {
-                        Text(text = "Device name")
-                    }
-                )
-            }
-        }
-    )
+//    AlertDialog(
+//        modifier = modifier,
+//        onDismissRequest = {
+//            onEvent(DeviceEvent.HideRenameDialog)
+//        },
+//        confirmButton = {
+//
+//            Button(onClick = {
+//                onEvent(DeviceEvent.RenameDevice(device))
+//            }) {
+//                Text(text="Confirm")
+//            }
+//        },
+//        dismissButton = {
+//            Button(onClick = {
+//                onEvent(DeviceEvent.HideRenameDialog)
+//            }) {
+//                Text(text="Cancel")
+//            }
+//        },
+//        title = { Text(text= "Rename Device") },
+//        text = {
+//            Column(
+//                verticalArrangement = Arrangement.spacedBy(8.dp)
+//            ) {
+//                TextField(
+//                    value = state.name,
+//                    onValueChange = {
+//                        onEvent(DeviceEvent.SetName(it))
+//                    },
+//                    placeholder = {
+//                        Text(text = "Device name")
+//                    }
+//                )
+//            }
+//        }
+//    )
 }

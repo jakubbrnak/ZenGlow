@@ -77,21 +77,21 @@ class DeviceViewModel(
                 ) }
             }
 
-            is DeviceEvent.ShowRenameDialog ->{
-                _state.update {it.copy (
-                    isRenaming = event.deviceId
-                )}
-            }
-
-            is DeviceEvent.HideRenameDialog ->{
-                _state.update {it.copy (
-                    isRenaming = -1
-                )}
-            }
+//            is DeviceEvent.ShowRenameDialog ->{
+//                _state.update {it.copy (
+//                    isRenaming = event.deviceId
+//                )}
+//            }
+//
+//            is DeviceEvent.HideRenameDialog ->{
+//                _state.update {it.copy (
+//                    isRenaming = -1
+//                )}
+//            }
 
 
             is DeviceEvent.RenameDevice ->{
-                val name = state.value.name
+                val name = state.value.displayName
 
                 val device = Device(
                     displayName = name,
@@ -108,8 +108,7 @@ class DeviceViewModel(
                 }
 
                 _state.update { it.copy(
-                    isRenaming =  -1,
-                    name = ""
+                    displayName = ""
                 ) }
 
             }

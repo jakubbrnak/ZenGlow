@@ -27,6 +27,7 @@ import androidx.compose.material.icons.outlined.BrightnessHigh
 import androidx.compose.material.icons.outlined.BrightnessLow
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedCard
@@ -38,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,10 +62,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
-import com.example.zenglow.dialogs.RenameDeviceDialog
-import com.example.zenglow.dialogs.RenameGroupDialog
 import com.example.zenglow.events.DeviceEvent
-import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 import com.github.skydoves.colorpicker.compose.*
 
@@ -100,9 +99,8 @@ fun DeviceConfigScreen(
                 .background(MaterialTheme.colorScheme.onBackground)
         ) {
             DeviceConfigName(
-                onEvent = onEvent,
-                state = DeviceState(),
-                device = deviceById
+                device = deviceById,
+                onRenameButtonClick = { showDialog = true }
             )
             DeviceConfigEditPicker(
                 device = deviceById,
@@ -110,9 +108,13 @@ fun DeviceConfigScreen(
             )
             DeviceConfigDoneButton(navController = navController)
         }
-
         if (showDialog) {
-            DeviceConfigRename(onDismissRequest = { showDialog = false })
+            DeviceConfigRename(
+                onDismissRequest = { showDialog = false },
+                device = deviceById,
+                onEvent = onEvent,
+                state = state
+            )
         }
     }
 }
@@ -152,27 +154,50 @@ fun DeviceConfigTopBar(navController: NavController) {
                     Modal for renaming a device
 */
 @Composable
-fun DeviceConfigRename(onDismissRequest: () -> Unit) {
+fun DeviceConfigRename(
+    onDismissRequest: () -> Unit,
+    state: DeviceState,
+    onEvent: (DeviceEvent) -> Unit,
+    modifier: Modifier = Modifier,
+    device: Device
+) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         ElevatedCard(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
-            modifier = Modifier
-                .size(width = 300.dp, height = 320.dp)
+//            modifier = Modifier
+//                .size(width = 300.dp, height = 320.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Text(   // Headline
-                    text = "Change device name\n use already implemented component",
-                    style = MaterialTheme.typography.headlineLarge,
-                    textAlign = TextAlign.Center
-                )
-            }
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    var newName by remember { mutableStateOf("") }
+                    TextField(
+                        value = newName,
+                        onValueChange = {
+                            newName = it
+                        },
+                        placeholder = {
+                            Text(text = "Device name")
+                        }
+                    )
+                    Row {
+                        Button(onClick = {
+                            onDismissRequest()
+                        }) {
+                            Text(text="Cancel")
+                        }
+                        Button(onClick = {
+                            val updatedDevice = device.copy(displayName = newName)
+                            onEvent(DeviceEvent.UpdateDevice(updatedDevice))
+                            onDismissRequest()
+                        }) {
+                            Text(text="Confirm")
+                        }
+                    }
+
+                }
         }
     }
 }
@@ -184,9 +209,8 @@ fun DeviceConfigRename(onDismissRequest: () -> Unit) {
 */
 @Composable
 fun DeviceConfigName(
-    onEvent: (DeviceEvent) -> Unit,
-    state: DeviceState,
     device: Device,
+    onRenameButtonClick: () -> Unit
 ) {
     val deviceId = device.deviceId
     Row(
@@ -211,11 +235,7 @@ fun DeviceConfigName(
                 .padding(end = 10.dp)
         )
         IconButton(
-            onClick = {
-                Log.d("MyTag", "${device.deviceId}")
-                onEvent(DeviceEvent.ShowRenameDialog(deviceId))
-
-            }
+            onClick = { onRenameButtonClick() }
         ) {
             Icon(
                 imageVector = Icons.Outlined.Edit,
@@ -224,9 +244,6 @@ fun DeviceConfigName(
                 modifier = Modifier.size(36.dp)
             )
         }
-    }
-    if(state.isRenaming == device.deviceId) {
-        RenameDeviceDialog(state = state, onEvent = onEvent, device = device)
     }
 }
 
