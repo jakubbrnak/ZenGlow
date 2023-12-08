@@ -13,9 +13,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.zenglow.events.DeviceEvent
-import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
 
+/*
+ FILE: AddDeviceDialog.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Dialog for creating a new device
+ */
 @Composable
 fun AddDeviceDialog(
     state: DeviceState,

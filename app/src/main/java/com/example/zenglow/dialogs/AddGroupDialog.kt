@@ -14,7 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.GroupState
-
+/*
+ FILE: AddGroupDialog.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Dialog for creating a new group
+ */
 @Composable
 fun AddGroupDialog(
     state: GroupState,

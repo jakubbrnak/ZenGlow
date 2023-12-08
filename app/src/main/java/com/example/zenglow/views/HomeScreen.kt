@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
@@ -78,7 +77,6 @@ import com.example.zenglow.R
 import com.example.zenglow.dialogs.RenameGroupDialog
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
-import com.example.zenglow.dialogs.RenameDeviceDialog
 import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.events.DeviceEvent
 import com.example.zenglow.events.GroupEvent
@@ -190,7 +188,6 @@ fun MainScrollContent(
             if (page < groupState.groups.size ) {
                 var typeControl by remember { mutableStateOf(value = 0) }
                 val optionsControl = listOf("Manual", "Mood")
-                var value by remember { mutableStateOf(0f) }
                 val controlEnable = groupState.groups[page].group.onControl == 1
 
                 Card(
@@ -743,13 +740,6 @@ fun homeColorConvert(hue: Color, brightness: Float, temperature: Float): Color {
 
     // Create a new Color object with the scaled components
     return Color(red = red, green = green, blue = blue)
-}
-
-fun homeInterpolateColor(start: Float, end: Float, t: Float): Float {
-    val adjustedT = t * 0.7f
-    val smoothedT = adjustedT * adjustedT * (3f - 2f * adjustedT)
-
-    return start + (end - start) * smoothedT
 }
 
 

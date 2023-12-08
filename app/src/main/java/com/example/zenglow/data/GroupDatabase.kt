@@ -7,7 +7,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.zenglow.data.entities.AppState
 import com.example.zenglow.data.entities.Device
 import com.example.zenglow.data.entities.Group
-
+/*
+ FILE: GroupDatabase
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: File for initializing database and database migrations
+ */
 @Database(
     entities = [
         Group::class,

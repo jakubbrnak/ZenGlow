@@ -25,6 +25,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.outlined.Brightness1
 import androidx.compose.material.icons.outlined.BrightnessHigh
 import androidx.compose.material.icons.outlined.BrightnessLow
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.WbSunny
 import androidx.compose.material3.Button
@@ -87,7 +88,8 @@ fun DeviceConfigScreen(
     val deviceById: Device = state.devices.find { it.deviceId == deviceId }
         ?:  Device(deviceId = -1, groupId = -1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "")
 
-    var showDialog by remember { mutableStateOf(false) }
+    var showRenameDialog by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = { DeviceConfigTopBar(navController = navController) }
@@ -100,7 +102,8 @@ fun DeviceConfigScreen(
         ) {
             DeviceConfigName(
                 device = deviceById,
-                onRenameButtonClick = { showDialog = true }
+                onRenameButtonClick = { showRenameDialog = true },
+                onDeleteButtonClick = { showDeleteDialog = true },
             )
             DeviceConfigEditPicker(
                 device = deviceById,
@@ -108,12 +111,19 @@ fun DeviceConfigScreen(
             )
             DeviceConfigDoneButton(navController = navController)
         }
-        if (showDialog) {
+        if (showRenameDialog) {
             DeviceConfigRename(
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = { showRenameDialog = false },
                 device = deviceById,
                 onEvent = onEvent,
-                state = state
+            )
+        }
+        if (showDeleteDialog) {
+            DeviceConfigDelete(
+                onDismissRequest = { showDeleteDialog = false },
+                device = deviceById,
+                onEvent = onEvent,
+                navController = navController
             )
         }
     }
@@ -156,9 +166,7 @@ fun DeviceConfigTopBar(navController: NavController) {
 @Composable
 fun DeviceConfigRename(
     onDismissRequest: () -> Unit,
-    state: DeviceState,
     onEvent: (DeviceEvent) -> Unit,
-    modifier: Modifier = Modifier,
     device: Device
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -202,6 +210,45 @@ fun DeviceConfigRename(
     }
 }
 
+@Composable
+fun DeviceConfigDelete(
+    onDismissRequest: () -> Unit,
+    onEvent: (DeviceEvent) -> Unit,
+    navController: NavController,
+    device: Device
+) {
+    Dialog(onDismissRequest = { onDismissRequest() }) {
+        ElevatedCard(
+            elevation = CardDefaults.cardElevation(
+                defaultElevation = 6.dp
+            ),
+//            modifier = Modifier
+//                .size(width = 300.dp, height = 320.dp)
+        ) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text("Do you want to delete this device?")
+                Row {
+                    Button(onClick = {
+                        onDismissRequest()
+                    }) {
+                        Text(text="Cancel")
+                    }
+                    Button(onClick = {
+                        onEvent(DeviceEvent.DeleteDevice(device))
+                        onDismissRequest()
+                        navController.navigate(Screen.Home.route)
+                    }) {
+                        Text(text="Confirm")
+                    }
+                }
+
+            }
+        }
+    }
+}
+
 
 /*
     DESCRIPTION:    DeviceConfigScreen -> DeviceConfigDisplayName
@@ -210,9 +257,9 @@ fun DeviceConfigRename(
 @Composable
 fun DeviceConfigName(
     device: Device,
-    onRenameButtonClick: () -> Unit
+    onRenameButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit,
 ) {
-    val deviceId = device.deviceId
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -234,16 +281,32 @@ fun DeviceConfigName(
             modifier = Modifier
                 .padding(end = 10.dp)
         )
-        IconButton(
-            onClick = { onRenameButtonClick() }
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = "Edit device name",
-                tint = MaterialTheme.colorScheme.background,
-                modifier = Modifier.size(36.dp)
-            )
+            IconButton(
+                onClick = { onRenameButtonClick() }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = "Edit device name",
+                    tint = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
+            IconButton(
+                onClick = { onDeleteButtonClick() }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Delete,
+                    contentDescription = "Delete device",
+                    tint = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.size(36.dp)
+                )
+            }
         }
+
     }
 }
 
@@ -465,7 +528,7 @@ fun DeviceConfigEditPicker(
                         { controller.selectByCoordinate(x = 50f, y = 50f, fromUser = false) }
                 ) {
                     scale(scaleX = 1f, scaleY = 1f) {
-                        drawCircle(Color.Green, radius = 25.dp.toPx(),)
+                        drawCircle(Color.Green, radius = 25.dp.toPx())
                         drawCircle(Color.Black, radius = 25.dp.toPx(), style = Stroke(width = 1.dp.toPx())
                         )
                     }

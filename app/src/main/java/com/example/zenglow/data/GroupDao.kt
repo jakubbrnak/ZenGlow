@@ -1,6 +1,5 @@
 package com.example.zenglow.data
 
-import android.devicelock.DeviceId
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Query
@@ -11,7 +10,11 @@ import com.example.zenglow.data.entities.Device
 import com.example.zenglow.data.entities.Group
 import com.example.zenglow.data.entities.relations.GroupWithDevices
 import kotlinx.coroutines.flow.Flow
-
+/*
+ FILE: GroupDao
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Dao file for database queries and functions
+ */
 @Dao
 interface GroupDao {
     @Upsert
@@ -28,10 +31,6 @@ interface GroupDao {
     @Transaction
     @Query("SELECT * FROM 'group'")
     fun readAllGroups(): Flow<List<GroupWithDevices>>
-
-    @Transaction
-    @Query("SELECT * FROM 'group' WHERE groupId = :groupId")
-    suspend fun getGroupWithDevices(groupId: Int): List<GroupWithDevices>
 
     @Transaction
     @Query("UPDATE device SET groupId = -1 WHERE groupId = :deletedGroupId")
