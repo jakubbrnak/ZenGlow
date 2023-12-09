@@ -1,10 +1,5 @@
 package com.example.zenglow.states
 
-import androidx.room.ColumnInfo
-import com.example.zenglow.data.entities.AppState
-import com.example.zenglow.data.entities.Device
-import kotlinx.coroutines.flow.StateFlow
-
 data class AppStateState(
     val brightness: Float = 0f,
     val temperature: Float = 0f,
@@ -12,4 +7,6 @@ data class AppStateState(
     val energy: Float = 0f,
     val mentalState: Int = 0,
     val currentMood: Int = 0,
+    val notifications: Int = 0,
+    val connection: Int = 0
 )

@@ -18,6 +18,10 @@ data class AppState(
     val mentalState: Int = 0,
     @ColumnInfo(name = "currentMood", defaultValue = "0")
     val currentMood: Int = 0,
+    @ColumnInfo(name = "notifications", defaultValue = "0")
+    val notifications: Int = 0,
+    @ColumnInfo(name = "connection", defaultValue = "0")
+    val connection: Int = 0,
 
     @PrimaryKey(autoGenerate = true)
     val stateTableId: Int = 0,

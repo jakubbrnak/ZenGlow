@@ -54,6 +54,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.zenglow.R
 import com.example.zenglow.Screen
+import com.example.zenglow.events.AppStateEvent
+import com.example.zenglow.states.AppStateState
 
 
 /*
@@ -61,7 +63,11 @@ import com.example.zenglow.Screen
                  Screen for the settings options of the app.
 */
 @Composable
-fun SettingsScreen(navController: NavController) {
+fun SettingsScreen(
+    navController: NavController,
+    appState: AppStateState,
+    onEvent: (AppStateEvent) -> Unit
+) {
     var showDialog by remember { mutableStateOf(value = false) }
 
     Scaffold(
@@ -72,7 +78,7 @@ fun SettingsScreen(navController: NavController) {
             )
         }
     ) { innerPadding ->
-        SettingsScrollContent(innerPadding)
+        SettingsScrollContent(innerPadding, appState, onEvent)
 
         if (showDialog) {
             MinimalDialog(onDismissRequest = { showDialog = false })
@@ -187,7 +193,11 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
                     Scrollable content for the settings screen.
 */
 @Composable
-fun SettingsScrollContent(innerPadding: PaddingValues) {
+fun SettingsScrollContent(
+    innerPadding: PaddingValues,
+    appState: AppStateState,
+    onEvent: (AppStateEvent) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -195,10 +205,16 @@ fun SettingsScrollContent(innerPadding: PaddingValues) {
             .padding(innerPadding)
     ) {
         item {
-            NotificationListItem()
+            NotificationListItem(
+                appState = appState,
+                onEvent = onEvent
+            )
         }
         item {
-            ConnectionListItem()
+            ConnectionListItem(
+                appState = appState,
+                onEvent = onEvent
+            )
         }
     }
 }
@@ -213,10 +229,13 @@ fun SettingsScrollContent(innerPadding: PaddingValues) {
                 - (var typeConnection) should be read/linked to database.
  */
 @Composable
-fun NotificationListItem() {
+fun NotificationListItem(
+    appState: AppStateState,
+    onEvent: (AppStateEvent) -> Unit
+) {
     var toggleNotification by remember { mutableStateOf(value = false) }
-    var typeNotification by remember { mutableStateOf(value = 0) }                 // TODO (should be read from database)
-    val optionsNotification = listOf("ON", "OFF")
+    var typeNotification by remember { mutableStateOf(appState.notifications) }                 // TODO (should be read from database)
+    val optionsNotification = listOf("OFF", "ON")
 
     Column(
         modifier = Modifier
@@ -233,7 +252,7 @@ fun NotificationListItem() {
 
         ListItem(
             headlineContent = { Text(text = "Notifications") },
-            supportingContent = { Text(text = "(not implemented)") },            // TODO (should be read from database)
+            supportingContent = { Text(text = "(not implemented)") },
             trailingContent = {
                 Icon(
                     Icons.Filled.ArrowDropDown,
@@ -271,7 +290,11 @@ fun NotificationListItem() {
                 optionsNotification.forEachIndexed { index, label ->
                     SegmentedButton(
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = optionsNotification.size),
-                        onClick = { typeNotification = index },
+                        onClick = {
+                            typeNotification = index
+                            val updatedState = appState.copy(notifications = index)
+                            onEvent(AppStateEvent.UpdateAppState(updatedState))
+                        },
                         selected = index == typeNotification               // TODO (should update/linked to database)
                     ) {
                         Text(label)
@@ -292,9 +315,12 @@ fun NotificationListItem() {
                 - (var typeConnection) should be read/linked to database.
  */
 @Composable
-fun ConnectionListItem() {
+fun ConnectionListItem(
+    appState: AppStateState,
+    onEvent: (AppStateEvent) -> Unit
+) {
     var toggleConnection by remember { mutableStateOf(value = false) }
-    var typeConnection by remember { mutableStateOf(0) }            // TODO (should be read from database)
+    var typeConnection by remember { mutableStateOf(appState.connection) }            // TODO (should be read from database)
     val optionsConnection = listOf("Wifi", "Bluetooth")
 
     Column(
@@ -350,8 +376,12 @@ fun ConnectionListItem() {
                 optionsConnection.forEachIndexed { index, label ->
                     SegmentedButton(
                         shape = SegmentedButtonDefaults.itemShape(index = index, count = optionsConnection.size),
-                        onClick = { typeConnection = index },
-                        selected = index == typeConnection              // TODO (should update/linked to database)
+                        onClick = {
+                            typeConnection = index
+                            val updatedState = appState.copy(connection = index)
+                            onEvent(AppStateEvent.UpdateAppState(updatedState))
+                        },
+                        selected = index == typeConnection
                     ) {
                         Text(label)
                     }

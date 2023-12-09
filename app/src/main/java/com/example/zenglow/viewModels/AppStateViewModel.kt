@@ -34,7 +34,9 @@ class AppStateViewModel(
                 stressIndex = appState?.stressIndex ?: 0f,
                 energy = appState?.energy ?: 0f,
                 mentalState = appState?.mentalState ?: 0,
-                currentMood = appState?.currentMood ?: 0
+                currentMood = appState?.currentMood ?: 0,
+                notifications = appState?.notifications ?: 0,
+                connection = appState?.connection ?: 0
             )
         }
         .stateIn(
@@ -57,7 +59,9 @@ class AppStateViewModel(
             stressIndex = dbState.stressIndex,
             energy = dbState.energy,
             mentalState = dbState.mentalState,
-            currentMood = dbState.currentMood
+            currentMood = dbState.currentMood,
+            notifications = dbState.notifications,
+            connection = dbState.connection
         )
     }.stateIn(
         viewModelScope,
@@ -77,7 +81,9 @@ class AppStateViewModel(
                     stressIndex = event.appState.stressIndex,
                     energy = event.appState.energy,
                     mentalState = event.appState.mentalState,
-                    currentMood = event.appState.currentMood
+                    currentMood = event.appState.currentMood,
+                    notifications = event.appState.notifications,
+                    connection = event.appState.connection
                 )
 
                 viewModelScope.launch {
@@ -90,7 +96,9 @@ class AppStateViewModel(
                     stressIndex = 0f,
                     energy = 0f,
                     mentalState = 0,
-                    currentMood = 0
+                    currentMood = 0,
+                    notifications = 0,
+                    connection = 0
                 ) }
 
             }

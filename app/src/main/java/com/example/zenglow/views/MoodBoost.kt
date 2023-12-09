@@ -1,7 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
 import android.annotation.SuppressLint
-import android.graphics.ImageDecoder.OnPartialImageListener
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -12,10 +11,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -45,7 +42,6 @@ import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.states.AppStateState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.sql.Types.NULL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -184,7 +180,7 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
         navigationIcon = {
             IconButton(onClick = onGoBackClicked) {
                 Icon(
-                    imageVector = Icons.Filled.KeyboardArrowLeft,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     modifier = Modifier.size(36.dp),
                     contentDescription = "Return back to home-page"
                 )
@@ -365,7 +361,7 @@ fun SuggestedMood(pagerState: PagerState,
             ) {
 
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(moodList[suggested], style = MaterialTheme.typography.headlineMedium,)
+                Text(moodList[suggested], style = MaterialTheme.typography.headlineMedium)
 
 
                 val coroutineScope = rememberCoroutineScope()

@@ -49,7 +49,7 @@ fun SetupNavGraph(
         composable(
             route = Screen.Settings.route
         ) {
-            SettingsScreen(navController = navController)
+            SettingsScreen(navController = navController, appState = appStateState, onEvent = onAppStateEvent)
         }
         composable(
             route = Screen.EditMood.route

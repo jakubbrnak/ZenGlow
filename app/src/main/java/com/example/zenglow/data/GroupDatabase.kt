@@ -18,7 +18,7 @@ import com.example.zenglow.data.entities.Group
         Device::class,
         AppState::class,
     ],
-    version = 5,
+    version = 6,
 )
 
 abstract class GroupDatabase : RoomDatabase() {
@@ -54,6 +54,13 @@ abstract class GroupDatabase : RoomDatabase() {
             override fun migrate(database: SupportSQLiteDatabase) {
                 database.execSQL("ALTER TABLE 'group' ADD COLUMN onControl INTEGER NOT NULL DEFAULT 1")
                 database.execSQL("ALTER TABLE device ADD COLUMN onState INTEGER NOT NULL DEFAULT 1")
+            }
+        }
+
+        val migration5to6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE appState ADD COLUMN notifications INTEGER NOT NULL DEFAULT 0")
+                database.execSQL("ALTER TABLE appState ADD COLUMN connection INTEGER NOT NULL DEFAULT 0")
             }
         }
     }

@@ -7,7 +7,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.zenglow.data.entities.Group
 import com.example.zenglow.events.GroupEvent
-import com.example.zenglow.states.GroupState
 /*
  FILE: DeleteGroupDialog.kt
  AUTHOR: Daniel Blaško <xblask05>
@@ -15,7 +14,6 @@ import com.example.zenglow.states.GroupState
  */
 @Composable
 fun DeleteGroupDialog(
-    state: GroupState,
     onEvent: (GroupEvent) -> Unit,
     modifier: Modifier = Modifier,
     group: Group

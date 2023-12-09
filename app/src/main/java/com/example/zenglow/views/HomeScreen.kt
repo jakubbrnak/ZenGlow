@@ -267,7 +267,7 @@ fun MainScrollContent(
                             }
 
                             if(groupState.isDeleting == page) {
-                                DeleteGroupDialog(state = groupState, onEvent = onGroupEvent, group = groupState.groups[page].group)
+                                DeleteGroupDialog(onEvent = onGroupEvent, group = groupState.groups[page].group)
                             }
                         }
                         HorizontalDivider(

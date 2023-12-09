@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
             GroupDatabase::class.java,
             "group.db"
         ).addMigrations(
-            GroupDatabase.migration1to2, GroupDatabase.migration2to3, GroupDatabase.migration3to4, GroupDatabase.migration4to5
+            GroupDatabase.migration1to2, GroupDatabase.migration2to3, GroupDatabase.migration3to4, GroupDatabase.migration4to5, GroupDatabase.migration5to6
         ).build()
     }
     private val groupViewModel by viewModels<GroupViewModel>(
