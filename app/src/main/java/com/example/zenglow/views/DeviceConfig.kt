@@ -146,7 +146,8 @@ fun DeviceConfigScreen(
                 onDismissRequest = { deleteDialog = false },
                 device = deviceById,
                 onEvent = onEvent,
-                state = state
+                state = state,
+                navController = navController
             )
         }
     }
@@ -284,7 +285,8 @@ fun DeviceConfigDelete(
     state: DeviceState,
     onEvent: (DeviceEvent) -> Unit,
     modifier: Modifier = Modifier,
-    device: Device
+    device: Device,
+    navController: NavController
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
         ElevatedCard(
@@ -330,12 +332,9 @@ fun DeviceConfigDelete(
                     }
 
                     TextButton(onClick = {
-                        // TODO DELETE DEVICE
-                        /*
-                        val updatedDevice = device.copy(displayName = newName)
-                        onEvent(DeviceEvent.UpdateDevice(updatedDevice))
+                        onEvent(DeviceEvent.DeleteDevice(device))
                         onDismissRequest()
-                         */
+                        navController.navigate(Screen.Home.route)
                     }) {
                         Text(
                             text="Confirm",
