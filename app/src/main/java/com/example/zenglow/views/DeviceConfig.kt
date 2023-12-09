@@ -1,4 +1,8 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+
+
+
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+@file:Suppress("DEPRECATION")
 
 package com.example.zenglow.views
 
@@ -12,6 +16,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,21 +31,28 @@ import androidx.compose.material.icons.outlined.Brightness1
 import androidx.compose.material.icons.outlined.BrightnessHigh
 import androidx.compose.material.icons.outlined.BrightnessLow
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,6 +68,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -63,9 +76,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
+import com.example.zenglow.data.entities.Group
 import com.example.zenglow.events.DeviceEvent
+import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
+import com.example.zenglow.states.GroupState
 import com.github.skydoves.colorpicker.compose.*
+
 
 /*
     DESCRIPTION:    DeviceConfigScreen
@@ -88,8 +105,8 @@ fun DeviceConfigScreen(
     val deviceById: Device = state.devices.find { it.deviceId == deviceId }
         ?:  Device(deviceId = -1, groupId = -1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "")
 
-    var showRenameDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf(false) }
+    var renameDialog by remember { mutableStateOf(false) }
+    var deleteDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = { DeviceConfigTopBar(navController = navController) }
@@ -98,12 +115,12 @@ fun DeviceConfigScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.onBackground)
+                .background(MaterialTheme.colorScheme.inverseSurface),
         ) {
             DeviceConfigName(
                 device = deviceById,
-                onRenameButtonClick = { showRenameDialog = true },
-                onDeleteButtonClick = { showDeleteDialog = true },
+                onRenameButtonClick = { renameDialog = true },
+                onDeleteButtonClick = { deleteDialog = true }
             )
             DeviceConfigEditPicker(
                 device = deviceById,
@@ -111,19 +128,20 @@ fun DeviceConfigScreen(
             )
             DeviceConfigDoneButton(navController = navController)
         }
-        if (showRenameDialog) {
+        if (renameDialog) {
             DeviceConfigRename(
-                onDismissRequest = { showRenameDialog = false },
+                onDismissRequest = { renameDialog = false },
                 device = deviceById,
                 onEvent = onEvent,
+                state = state
             )
         }
-        if (showDeleteDialog) {
+        if(deleteDialog) {
             DeviceConfigDelete(
-                onDismissRequest = { showDeleteDialog = false },
+                onDismissRequest = { deleteDialog = false },
                 device = deviceById,
                 onEvent = onEvent,
-                navController = navController
+                state = state
             )
         }
     }
@@ -143,14 +161,14 @@ fun DeviceConfigTopBar(navController: NavController) {
                 text = "Device Configuration",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleMedium,
             )
         },
         navigationIcon = {
             IconButton(onClick = { navController.navigate(Screen.Home.route) }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(36.dp),
                     contentDescription = "Return back to home-page"
                 )
             }
@@ -166,7 +184,9 @@ fun DeviceConfigTopBar(navController: NavController) {
 @Composable
 fun DeviceConfigRename(
     onDismissRequest: () -> Unit,
+    state: DeviceState,
     onEvent: (DeviceEvent) -> Unit,
+    modifier: Modifier = Modifier,
     device: Device
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -174,34 +194,72 @@ fun DeviceConfigRename(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
-//            modifier = Modifier
-//                .size(width = 300.dp, height = 320.dp)
+            modifier = Modifier
+                .size(width = 320.dp, height = 220.dp)
         ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
+
+
+                    // Title
+                    Text(
+                        text = "Rename the device",
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier
+                            .padding(top = 20.dp, bottom = 20.dp)
+                    )
+
+                    /* Text field for entering a new name */
                     var newName by remember { mutableStateOf("") }
                     TextField(
                         value = newName,
-                        onValueChange = {
-                            newName = it
-                        },
-                        placeholder = {
-                            Text(text = "Device name")
-                        }
+                        onValueChange = { newName = it },
+                        placeholder = { Text(text = "Device name") },
+                        shape = RoundedCornerShape(25.dp),
+                        singleLine = false,
+                        colors = TextFieldDefaults.textFieldColors(
+                            focusedIndicatorColor = Color.Transparent,
+                            disabledIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                        ),
+                        modifier = Modifier
+                            .padding(bottom = 40.dp, start = 20.dp, end = 20.dp)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, CircleShape)
                     )
-                    Row {
-                        Button(onClick = {
-                            onDismissRequest()
-                        }) {
-                            Text(text="Cancel")
+
+                    /* Cancel/Confirm buttons */
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.End)
+                            .padding(bottom = 10.dp),
+                    ) {
+                        TextButton(onClick = { onDismissRequest() }
+                        ){
+                            Text(
+                                text="Cancel",
+                                modifier.padding(end = 10.dp),
+                            )
                         }
-                        Button(onClick = {
+
+                        TextButton(onClick = {
                             val updatedDevice = device.copy(displayName = newName)
                             onEvent(DeviceEvent.UpdateDevice(updatedDevice))
                             onDismissRequest()
                         }) {
-                            Text(text="Confirm")
+                            Text(
+                                text="Confirm",
+                                modifier.padding(end = 10.dp),
+                            )
                         }
                     }
 
@@ -210,11 +268,30 @@ fun DeviceConfigRename(
     }
 }
 
+
+@Preview
+@Composable
+fun DeviceConfigDeletePreview() {
+    DeviceConfigDelete(
+        onDismissRequest = {},
+        device = Device(deviceId = 1, groupId = 1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "Device 1"),
+        onEvent = {},
+        state = DeviceState(devices = listOf(Device(deviceId = 1, groupId = 1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "Device 1")))
+    )
+}
+
+
+
+/*
+    DESCRIPTION:    DeviceConfigScreen -> DeviceConfigDelete
+                    Modal for confirming the deletion of a device
+*/
 @Composable
 fun DeviceConfigDelete(
     onDismissRequest: () -> Unit,
+    state: DeviceState,
     onEvent: (DeviceEvent) -> Unit,
-    navController: NavController,
+    modifier: Modifier = Modifier,
     device: Device
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -222,25 +299,56 @@ fun DeviceConfigDelete(
             elevation = CardDefaults.cardElevation(
                 defaultElevation = 6.dp
             ),
-//            modifier = Modifier
-//                .size(width = 300.dp, height = 320.dp)
+            modifier = Modifier
+                .size(width = 320.dp, height = 180.dp)
         ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .background(MaterialTheme.colorScheme.surface)
             ) {
-                Text("Do you want to delete this device?")
-                Row {
-                    Button(onClick = {
-                        onDismissRequest()
-                    }) {
-                        Text(text="Cancel")
+
+
+                // Title
+                Text(
+                    text = "Do you want to delete this device?",
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier
+                        .padding(top = 20.dp, bottom = 30.dp)
+                )
+
+                /* Cancel/Confirm buttons */
+                Row(
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.End),
+                ) {
+                    TextButton(onClick = { onDismissRequest() }
+                    ){
+                        Text(
+                            text="Cancel",
+                            modifier.padding(end = 10.dp),
+                        )
                     }
-                    Button(onClick = {
-                        onEvent(DeviceEvent.DeleteDevice(device))
+
+                    TextButton(onClick = {
+                        // TODO DELETE DEVICE
+                        /*
+                        val updatedDevice = device.copy(displayName = newName)
+                        onEvent(DeviceEvent.UpdateDevice(updatedDevice))
                         onDismissRequest()
-                        navController.navigate(Screen.Home.route)
+                         */
                     }) {
-                        Text(text="Confirm")
+                        Text(
+                            text="Confirm",
+                            modifier.padding(end = 10.dp),
+                        )
                     }
                 }
 
@@ -248,6 +356,8 @@ fun DeviceConfigDelete(
         }
     }
 }
+
+
 
 
 /*
@@ -258,8 +368,9 @@ fun DeviceConfigDelete(
 fun DeviceConfigName(
     device: Device,
     onRenameButtonClick: () -> Unit,
-    onDeleteButtonClick: () -> Unit,
+    onDeleteButtonClick: () -> Unit
 ) {
+    val deviceId = device.deviceId
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -271,7 +382,7 @@ fun DeviceConfigName(
             text =  device.displayName,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            color = MaterialTheme.colorScheme.background,
+            color = MaterialTheme.colorScheme.onSurface,
             style = TextStyle(
                 fontWeight = FontWeight.W500,
                 fontSize = 26.sp,
@@ -279,34 +390,28 @@ fun DeviceConfigName(
                 letterSpacing = 0.sp
             ),
             modifier = Modifier
-                .padding(end = 10.dp)
+                .padding(end = 30.dp)
         )
-        Row(
-            modifier = Modifier
-                .padding(horizontal = 24.dp)
+        IconButton(
+            onClick = { onRenameButtonClick() }
         ) {
-            IconButton(
-                onClick = { onRenameButtonClick() }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = "Edit device name",
-                    tint = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.size(36.dp)
-                )
-            }
-            IconButton(
-                onClick = { onDeleteButtonClick() }
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Delete,
-                    contentDescription = "Delete device",
-                    tint = MaterialTheme.colorScheme.background,
-                    modifier = Modifier.size(36.dp)
-                )
-            }
+            Icon(
+                imageVector = Icons.Outlined.Edit,
+                contentDescription = "Edit device name",
+                modifier = Modifier
+                    .size(36.dp)
+                    .padding(end = 5.dp)
+            )
         }
-
+        IconButton(
+            onClick = { onDeleteButtonClick() }
+        ) {
+            Icon(
+                imageVector = Icons.Outlined.Delete,
+                contentDescription = "Delete device",
+                modifier = Modifier.size(30.dp)
+            )
+        }
     }
 }
 
@@ -324,18 +429,19 @@ fun DeviceConfigDoneButton(navController: NavController) {
             .padding(20.dp)
             .fillMaxWidth()
     ) {
-        FilledTonalButton(
+        Button(
             onClick = { navController.navigate(Screen.Home.route) },
         ) {
             Text(
                 text = "Done",
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.inversePrimary,
                 modifier = Modifier
-                    .padding(start = 30.dp, end = 30.dp, top = 0.dp, bottom = 5.dp),
+                    .padding(start = 40.dp, end = 40.dp),
             )
         }
     }
 }
-
 
 
 /*
@@ -442,115 +548,6 @@ fun DeviceConfigEditPicker(
             }
         }
 
-        /*
-            Color picker buttons
-            - presets for the color picker (white, gray, red, green, blue)
-        */
-        Text(
-            text = "Color presets",
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .padding(bottom = 15.dp)
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(
-                    bottom = 20.dp,
-                    start = 15.dp,
-                    end = 15.dp,
-                ),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                Modifier.size(60.dp)
-            ) {
-                Canvas(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clickable(interactionSource = interactionSource, indication = null) {
-                            pickerController.selectCenter(fromUser = false)
-                            brightness = 1.0f
-                            temperature = 0.0f
-                        }
-                ) {
-                    scale(scaleX = 1f, scaleY = 1f) {
-                        drawCircle(Color.White, radius = 25.dp.toPx())
-                        drawCircle(Color.Black, radius = 25.dp.toPx(), style = Stroke(width = 1.dp.toPx()))
-                    }
-                }
-            }
-            Box(
-                Modifier.size(60.dp)
-            ) {
-                Canvas(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clickable(interactionSource = interactionSource, indication = null) {
-                            pickerController.selectCenter(fromUser = false)
-                            brightness = 0.5f
-                            temperature = 0.0f
-                        }
-                ) {
-                    scale(scaleX = 1f, scaleY = 1f) {
-                        drawCircle(Color.Gray, radius = 25.dp.toPx())
-                        drawCircle(Color.Black, radius = 25.dp.toPx(), style = Stroke(width = 1.dp.toPx())
-                        )
-                    }
-                }
-            }
-            Box(
-                Modifier.size(60.dp)
-            ) {
-                Canvas(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clickable(interactionSource = interactionSource, indication = null)
-                        { controller.selectByCoordinate(x = 50f, y = 50f, fromUser = false) }
-                ) {
-                    scale(scaleX = 1f, scaleY = 1f) {
-                        drawCircle(Color.Red, radius = 25.dp.toPx())
-                        drawCircle(Color.Black, radius = 25.dp.toPx(), style = Stroke(width = 1.dp.toPx())
-                        )
-                    }
-                }
-            }
-            Box(
-                Modifier.size(60.dp)
-            ) {
-                Canvas(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clickable(interactionSource = interactionSource, indication = null)
-                        { controller.selectByCoordinate(x = 50f, y = 50f, fromUser = false) }
-                ) {
-                    scale(scaleX = 1f, scaleY = 1f) {
-                        drawCircle(Color.Green, radius = 25.dp.toPx())
-                        drawCircle(Color.Black, radius = 25.dp.toPx(), style = Stroke(width = 1.dp.toPx())
-                        )
-                    }
-                }
-            }
-            Box(
-                Modifier.size(60.dp)
-            ) {
-                Canvas(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clickable(interactionSource = interactionSource, indication = null)
-                        { controller.selectByCoordinate(x = 50f, y = 50f, fromUser = false) }
-                ) {
-                    scale(scaleX = 1f, scaleY = 1f) {
-                        drawCircle(Color.Blue, radius = 25.dp.toPx())
-                        drawCircle(Color.Black, radius = 25.dp.toPx(), style = Stroke(width = 1.dp.toPx())
-                        )
-                    }
-                }
-            }
-        }
 
         /*
             Brightness slider
@@ -635,9 +632,45 @@ fun DeviceConfigEditPicker(
                 contentDescription = "Return back to home-page",
             )
         }
+
+
+        /*
+        Helpful buttons (reset color), (reset filters)
+        - buttons for resetting the color and filters
+        */
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth()
+        ) {
+            OutlinedButton(
+                onClick = { pickerController.selectCenter(fromUser = false) },
+                modifier = Modifier.padding(end = 20.dp)
+            ) {
+                Text(
+                    text = "Reset color",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+            OutlinedButton(
+                onClick = {
+                    with(device.copy(temperature = 0.0f, brightness = 1.0f)) {
+                        onDeviceEvent(DeviceEvent.UpdateDevice(this))
+                    } },
+                modifier = Modifier.padding(start = 20.dp)
+            ) {
+                Text(
+                    text = "Reset filters",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+        }
     }
 }
-
 
 /*
     DESCRIPTION:    [colorHex]

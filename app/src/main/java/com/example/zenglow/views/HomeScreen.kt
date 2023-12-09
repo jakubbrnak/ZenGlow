@@ -146,7 +146,7 @@ fun MainScrollContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .background(Color(0xEC, 0xEC, 0xEC)),
+            .background(MaterialTheme.colorScheme.inverseSurface),
         verticalArrangement = Arrangement.spacedBy(32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
 
@@ -198,8 +198,7 @@ fun MainScrollContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.secondaryContainer),
+                            .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -307,8 +306,7 @@ fun MainScrollContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.tertiaryContainer),
+                            .fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -429,7 +427,6 @@ fun GroupDeviceItem(
     }
         Column(
             modifier = Modifier
-                .background(Color.White)
         ) {
             ListItem(
                 modifier = Modifier.height(48.dp),

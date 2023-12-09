@@ -99,7 +99,7 @@ fun SettingsTopBar(navController: NavController, onInfoButtonClick: () -> Unit) 
                 text = "Settings",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleMedium
             )
         },
         navigationIcon = {
@@ -201,8 +201,8 @@ fun SettingsScrollContent(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.onBackground)
             .padding(innerPadding)
+            .background(MaterialTheme.colorScheme.inverseSurface),
     ) {
         item {
             NotificationListItem(
@@ -246,13 +246,13 @@ fun NotificationListItem(
                 end = 24.dp,
             )
             .clip(shape = RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.primaryContainer),
 
         ) {
 
         ListItem(
             headlineContent = { Text(text = "Notifications") },
-            supportingContent = { Text(text = "(not implemented)") },
+            supportingContent = { Text(text = optionsNotification[typeNotification]) },
             trailingContent = {
                 Icon(
                     Icons.Filled.ArrowDropDown,
@@ -332,13 +332,13 @@ fun ConnectionListItem(
                 end = 24.dp,
             )
             .clip(shape = RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.primaryContainer),
 
         ) {
 
         ListItem(
             headlineContent = { Text(text = "Connection") },
-            supportingContent = { Text(text = "(not implemented)") },       // TODO (should be read from database)
+            supportingContent = { Text(text = optionsConnection[typeConnection]) },       // TODO (should be read from database)
             trailingContent = {
                 Icon(
                     Icons.Filled.ArrowDropDown,

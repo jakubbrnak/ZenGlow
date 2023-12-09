@@ -76,7 +76,7 @@ fun MainScrollContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .background(Color(0xEC, 0xEC, 0xEC)),
+            .background(MaterialTheme.colorScheme.inverseSurface),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -155,7 +155,6 @@ fun ImagePager(
                 )
                 Text(
                     text = moodList[page],
-                    color = Color.White,
                     style = MaterialTheme.typography.headlineLarge,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -200,8 +199,7 @@ fun OverallScore(
     val score = ((appStateState.energy*100)*0.3 + (100 - appStateState.stressIndex*100)*0.3 + ((appStateState.mentalState+1)*20)*0.3).toInt()
     Column(
         modifier = Modifier
-            .padding(top = 10.dp)
-            .background(Color(0xEC, 0xEC, 0xEC)),
+            .padding(top = 10.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -209,7 +207,6 @@ fun OverallScore(
             Modifier
                 .width(340.dp)
                 .height(250.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
 
         ) {
             Column(
@@ -341,8 +338,7 @@ fun SuggestedMood(pagerState: PagerState,
 
     Column(
         modifier = Modifier
-            .padding(top = 10.dp)
-            .background(Color(0xEC, 0xEC, 0xEC)),
+            .padding(top = 10.dp),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -350,7 +346,6 @@ fun SuggestedMood(pagerState: PagerState,
             modifier = Modifier
                 .width(340.dp)
                 .height(80.dp),
-            colors = CardDefaults.cardColors(containerColor = Color.White)
         ) {
             Row(
                 modifier = Modifier

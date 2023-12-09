@@ -67,7 +67,7 @@ fun MainScrollContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .background(Color(0xEC, 0xEC, 0xEC)),
+            .background(MaterialTheme.colorScheme.inverseSurface),
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -100,7 +100,6 @@ fun RadioButtonGroup(
             .width(340.dp)
             .height(150.dp)
             .padding(top = 40.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
     ){
         Text(
             text = "Mental State",
@@ -161,7 +160,6 @@ fun SliderBoxPhysical(
             .width(340.dp)
             .height(120.dp)
             .padding(top = 40.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
 
     ) {
         Column(
@@ -208,7 +206,6 @@ fun SliderBoxStress(
             .width(340.dp)
             .height(120.dp)
             .padding(top = 40.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
 
     ) {
         Column(

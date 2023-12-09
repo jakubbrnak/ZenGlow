@@ -100,5 +100,7 @@ dependencies {
     // Color picker componenents
     implementation("com.github.skydoves:colorpicker-compose:1.0.6")
 
+    // UI Controller
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.33.2-alpha")
 
 }

@@ -106,8 +106,7 @@ fun NewDeviceScrollContent(
         modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding)
-            .background(Color(0xEC, 0xEC, 0xEC)),
-
+            .background(MaterialTheme.colorScheme.inverseSurface),
     ) {
         Text(
             "Unassigned devices",
@@ -125,7 +124,6 @@ fun NewDeviceScrollContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
-                        .background(Color.White, RoundedCornerShape(16.dp))
                         .heightIn(0.dp, maxHeight)
                 ) {
                     LazyColumn(contentPadding = PaddingValues(12.dp)) {
@@ -191,7 +189,6 @@ fun DeviceItem(
                     modifier = Modifier
                         .border(1.dp, Color.Black, CircleShape)
                         .clip(CircleShape)
-                        .background(color = Color(0xfffcba03))
                         .size(45.dp),
                     contentAlignment = Alignment.Center
                 ) {
