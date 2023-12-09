@@ -126,7 +126,11 @@ fun NewDeviceScrollContent(
                         .padding(8.dp)
                         .heightIn(0.dp, maxHeight)
                 ) {
-                    LazyColumn(contentPadding = PaddingValues(12.dp)) {
+                    LazyColumn(
+                        contentPadding = PaddingValues(12.dp),
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.primaryContainer)
+                    ) {
                         items(state.freeDevices.size) { device ->
                             DeviceItem(
                                 modifier = Modifier,
@@ -146,7 +150,7 @@ fun NewDeviceScrollContent(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(start = 42.dp, end = 42.dp, bottom = 16.dp, top = 16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically
@@ -206,6 +210,6 @@ fun DeviceItem(
         )
         HorizontalDivider(
             thickness = 0.5.dp,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.outline,
         )
 }

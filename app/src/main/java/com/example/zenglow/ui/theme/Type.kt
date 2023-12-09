@@ -1,3 +1,9 @@
+/*
+ FILE: Type.kt
+ AUTHOR: Nikolas Nosál <xnosal01>
+ DESCRIPTION: Application typography (adapted from material design 3)
+*/
+
 package com.example.zenglow.ui.theme
 
 import androidx.compose.material3.Typography

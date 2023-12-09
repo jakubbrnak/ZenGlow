@@ -86,6 +86,7 @@ import com.example.zenglow.states.GroupState
 /*
  FILE: HomeScreen.kt
  AUTHOR: Daniel Blaško <xblask05>
+ PARTICIPATION: fun homeColorConvert() -> Daniel Blaško <xblask05>, Nikolas Nosál <xnosal01>
  DESCRIPTION: Main Page of the app containing a link to the MoodBoost window,
               light intensity and temperature sliders and a pager with light groups.
               Groups contain devices, which can be controlled manually, the user can also access
@@ -198,7 +199,8 @@ fun MainScrollContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primaryContainer),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -270,14 +272,15 @@ fun MainScrollContent(
                             }
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = Color.Black
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outline
                         )
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color.White, RoundedCornerShape(bottomStart=16.dp, bottomEnd = 16.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .clip(RoundedCornerShape(bottomStart=16.dp, bottomEnd = 16.dp))
                                 .weight(1f)
                         ) {
                             LazyColumn(contentPadding = PaddingValues(12.dp)) {
@@ -306,7 +309,8 @@ fun MainScrollContent(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .fillMaxSize(),
+                            .fillMaxSize()
+                            .background(MaterialTheme.colorScheme.primaryContainer),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -330,14 +334,15 @@ fun MainScrollContent(
                             }
                         }
                         HorizontalDivider(
-                            thickness = 1.dp,
-                            color = Color.Black
+                            thickness = 0.5.dp,
+                            color = MaterialTheme.colorScheme.outline
                         )
                         //Contain the lazyColumn into a box so that it doesn't push other components away
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(Color.White, RoundedCornerShape(bottomStart=16.dp, bottomEnd = 16.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .clip(RoundedCornerShape(bottomStart=16.dp, bottomEnd = 16.dp))
                                 .weight(1f)
                         ) {
                             LazyColumn(contentPadding = PaddingValues(12.dp)) {
@@ -359,12 +364,14 @@ fun MainScrollContent(
              // Render the extra page (new content for the additional page)
                 Card(
                     Modifier
+                        .width(300.dp)
                         .size(450.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .fillMaxHeight()
+                            .background(MaterialTheme.colorScheme.primaryContainer)
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
@@ -421,16 +428,18 @@ fun GroupDeviceItem(
     state: DeviceState
 ) {
     val enableColor = if (controlEnable) {
-        Color.Black
+        MaterialTheme.colorScheme.onPrimaryContainer
     } else {
         Color.Gray
     }
         Column(
             modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
         ) {
             ListItem(
-                modifier = Modifier.height(48.dp),
-                headlineContent = {Text(device.displayName)},
+                modifier = Modifier
+                    .height(48.dp),
+                headlineContent = {Text(text = device.displayName, color = MaterialTheme.colorScheme.onPrimaryContainer)},
                 leadingContent = {
                     Box(
                         modifier = Modifier
@@ -536,7 +545,7 @@ fun GroupDeviceItem(
         }
         HorizontalDivider(
             thickness = 0.5.dp,
-            color = Color.Black
+            color = MaterialTheme.colorScheme.outline
         )
     }
 
@@ -718,6 +727,7 @@ private fun calculateBackgroundColor(value: Float, color1: Color, color2: Color)
 
     return ColorUtils.blendARGB(color1Int, color2Int, ratio)
 }
+
 
 @Composable
 fun homeColorConvert(hue: Color, brightness: Float, temperature: Float): Color {

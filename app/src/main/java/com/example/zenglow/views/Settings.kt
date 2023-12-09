@@ -1,4 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+/*
+ FILE: Settings.kt
+ AUTHOR: Nikolas Nosál <xnosal01>
+
+ DESCRIPTION: Settings screen menu for the app. which is expandable. Contains also about app dialog.
+*/
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.example.zenglow.views
 
@@ -128,8 +134,6 @@ fun SettingsTopBar(navController: NavController, onInfoButtonClick: () -> Unit) 
     DESCRIPTION:    SettingsScreen -> Dialog
                     Dialog for the settings screen, which is trigger by SettingsTopBar,
                     when the info button is clicked.
-
-    TODO:           Fix Text() text, values if needed.
 */
 @Composable
 fun MinimalDialog(onDismissRequest: () -> Unit) {
@@ -143,6 +147,7 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
         ) {
             Column(
                 modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .fillMaxSize()
                     .padding(16.dp),
                 verticalArrangement = Arrangement.Center,
@@ -150,21 +155,25 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
                 Text(   // Headline
                     text = "ZenGlow",
                     style = MaterialTheme.typography.headlineLarge,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Center
                 )
                 Text(   // SubHeadline
                     text = "Version 0.3.0-Pre-Alpha",
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Center,
                 )
                 Text(   // MainBody
                     text ="\nApp for controlling smartLED devices, based on your mood. Implemented for ITU-Project (BUT-FIT).",
                     style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Center,
                 )
                 Text(   // OtherBody Headline
                     text = "\nCreated by:",
                     style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Left
                 )
                 Spacer(modifier = Modifier.size(4.dp))
@@ -173,6 +182,7 @@ fun MinimalDialog(onDismissRequest: () -> Unit) {
                             " - Jakub Brnák (xbrnak??)\n" +
                             " - Daniel Blaško (xblask??)\n",
                     style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     textAlign = TextAlign.Left,
                 )
                 TextButton(
@@ -223,10 +233,6 @@ fun SettingsScrollContent(
 /*
  DESCRIPTION:   SettingsScreen -> ScrollContent -> Notification
                 List item with a drop-down menu to turn on/off notifications
-
- TODO:          - (ListItem->supportingContent), the text should be read from database.
-                - SegmentedButton->selected should update/linked the database from database.
-                - (var typeConnection) should be read/linked to database.
  */
 @Composable
 fun NotificationListItem(
@@ -234,7 +240,7 @@ fun NotificationListItem(
     onEvent: (AppStateEvent) -> Unit
 ) {
     var toggleNotification by remember { mutableStateOf(value = false) }
-    var typeNotification by remember { mutableStateOf(appState.notifications) }                 // TODO (should be read from database)
+    var typeNotification by remember { mutableStateOf(appState.notifications) }
     val optionsNotification = listOf("OFF", "ON")
 
     Column(
@@ -295,7 +301,7 @@ fun NotificationListItem(
                             val updatedState = appState.copy(notifications = index)
                             onEvent(AppStateEvent.UpdateAppState(updatedState))
                         },
-                        selected = index == typeNotification               // TODO (should update/linked to database)
+                        selected = index == typeNotification
                     ) {
                         Text(label)
                     }
@@ -309,10 +315,6 @@ fun NotificationListItem(
 /*
  DESCRIPTION:   SettingsScreen -> ScrollContent -> Connection
                 List item with a drop-down menu to select a connection type
-
- TODO:          - (ListItem->supportingContent), the text should be read from database.
-                - SegmentedButton->selected should update/linked the database from database.
-                - (var typeConnection) should be read/linked to database.
  */
 @Composable
 fun ConnectionListItem(
@@ -320,7 +322,7 @@ fun ConnectionListItem(
     onEvent: (AppStateEvent) -> Unit
 ) {
     var toggleConnection by remember { mutableStateOf(value = false) }
-    var typeConnection by remember { mutableStateOf(appState.connection) }            // TODO (should be read from database)
+    var typeConnection by remember { mutableStateOf(appState.connection) }
     val optionsConnection = listOf("Wifi", "Bluetooth")
 
     Column(
@@ -338,7 +340,7 @@ fun ConnectionListItem(
 
         ListItem(
             headlineContent = { Text(text = "Connection") },
-            supportingContent = { Text(text = optionsConnection[typeConnection]) },       // TODO (should be read from database)
+            supportingContent = { Text(text = optionsConnection[typeConnection]) },
             trailingContent = {
                 Icon(
                     Icons.Filled.ArrowDropDown,

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -75,10 +76,13 @@ fun MainScrollContent(
         SliderBoxPhysical(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
         SliderBoxStress(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
         RadioButtonGroup(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
-        OutlinedButton(onClick = { navController.navigateUp()},
+        Button(onClick = { navController.navigateUp()},
                     modifier = Modifier.padding(top = 10.dp)
             ) {
-            Text("Done")
+            Text(
+                text = "Done",
+                modifier = Modifier.padding(start = 10.dp, end = 10.dp)
+            )
         }
     }
 }
@@ -100,50 +104,75 @@ fun RadioButtonGroup(
             .width(340.dp)
             .height(150.dp)
             .padding(top = 40.dp),
-    ){
-        Text(
-            text = "Mental State",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier
-                .padding(top = 10.dp)
-                .align(Alignment.CenterHorizontally)
-        )
-        Row(
+    ) {
+        Column(
             Modifier
-                .selectableGroup()
-                .align(Alignment.Start)
-                .padding(top = 10.dp),
-            verticalAlignment = Alignment.Bottom
-
-        )
-        {
-            // Create 5 radio buttons
-            Text(text = "\uD83D\uDE14", fontSize = 24.sp, modifier = Modifier.padding(start = 58.dp))
-            Text(text = "\uD83D\uDE44", fontSize = 24.sp, modifier = Modifier.padding(start = 19.dp))
-            Text(text = "\uD83D\uDE10", fontSize = 24.sp, modifier = Modifier.padding(start = 18.dp))
-            Text(text = "\uD83D\uDE42", fontSize = 24.sp, modifier = Modifier.padding(start = 18.dp))
-            Text(text = "\uD83E\uDD29", fontSize = 24.sp, modifier = Modifier.padding(start = 17.dp))
-        }
-        Row(
-            Modifier
-                .selectableGroup()
-                .align(Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.Bottom
+                .background(MaterialTheme.colorScheme.primaryContainer),
+        ) {
+            Text(
+                text = "Mental State",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier
+                    .padding(top = 10.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Row(
+                Modifier
+                    .selectableGroup()
+                    .align(Alignment.Start)
+                    .padding(top = 10.dp),
+                verticalAlignment = Alignment.Bottom
 
             )
             {
-            // Create 5 radio buttons
-            for (index in 0 until 5) {
-                RadioButton(
-                    selected = selectedOption == index,
-                    onClick = {
-                        selectedOption = index
-                        val updatedAppState = appStateState.copy(mentalState = index)
-                        onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
+                // Create 5 radio buttons
+                Text(
+                    text = "\uD83D\uDE14",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 58.dp)
+                )
+                Text(
+                    text = "\uD83D\uDE44",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 19.dp)
+                )
+                Text(
+                    text = "\uD83D\uDE10",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 18.dp)
+                )
+                Text(
+                    text = "\uD83D\uDE42",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 18.dp)
+                )
+                Text(
+                    text = "\uD83E\uDD29",
+                    fontSize = 24.sp,
+                    modifier = Modifier.padding(start = 17.dp)
+                )
+            }
+            Row(
+                Modifier
+                    .selectableGroup()
+                    .align(Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.Bottom
+
+            )
+            {
+                // Create 5 radio buttons
+                for (index in 0 until 5) {
+                    RadioButton(
+                        selected = selectedOption == index,
+                        onClick = {
+                            selectedOption = index
+                            val updatedAppState = appStateState.copy(mentalState = index)
+                            onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
 
                         },
-                    modifier = Modifier.semantics { contentDescription = "Option ${index + 1}" }
-                )
+                        modifier = Modifier.semantics { contentDescription = "Option ${index + 1}" }
+                    )
+                }
             }
         }
     }
@@ -165,6 +194,7 @@ fun SliderBoxPhysical(
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
         ) {
             Text(
                 text = "Physical energy",
@@ -211,6 +241,7 @@ fun SliderBoxStress(
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
         ) {
             Text(
                 text = "Stress Level",

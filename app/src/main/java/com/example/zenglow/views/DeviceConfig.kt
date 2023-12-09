@@ -1,7 +1,12 @@
+/*
+ FILE: DeviceConfig.kt
+ AUTHOR: Nikolas Nosál <xnosal01>
+ PARTICIPATION: fun colorConvert() -> Daniel Blaško <xblask05>, Nikolas Nosál <xnosal01>
 
-
-
-@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
+ DESCRIPTION: Application device configuration screen, used for settings the device's name,
+              color, brightness, and temperature, as well as deleting the device
+*/
+@file:OptIn(ExperimentalMaterial3Api::class)
 @file:Suppress("DEPRECATION")
 
 package com.example.zenglow.views
@@ -267,19 +272,6 @@ fun DeviceConfigRename(
         }
     }
 }
-
-
-@Preview
-@Composable
-fun DeviceConfigDeletePreview() {
-    DeviceConfigDelete(
-        onDismissRequest = {},
-        device = Device(deviceId = 1, groupId = 1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "Device 1"),
-        onEvent = {},
-        state = DeviceState(devices = listOf(Device(deviceId = 1, groupId = 1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "Device 1")))
-    )
-}
-
 
 
 /*
@@ -710,6 +702,8 @@ fun colorBrightness(color: Color): Double {
 /*
     DESCRIPTION:    colorConvert
                     Function takes in a Hue, Brightness, and Temperature and returns a Color
+
+    NOTE:           This function is also used in partly used in HomeScreen.kt
 */
 @Composable
 fun colorConvert(hue: Color, brightness: Float, temperature: Float): Color {

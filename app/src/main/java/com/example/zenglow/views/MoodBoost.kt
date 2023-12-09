@@ -82,7 +82,7 @@ fun MainScrollContent(
     ) {
         Text(
             "Current Mood",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 20.dp)  // Adds padding to the start
@@ -111,7 +111,7 @@ fun MainScrollContent(
         Spacer(modifier = Modifier.height(40.dp))
         Text(
             "Suggested Mood",
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleSmall,
             modifier = Modifier
                 .align(Alignment.Start) // Aligns the text to the start within the column
                 .padding(start = 16.dp, top = 10.dp)  // Adds padding to the start
@@ -156,6 +156,7 @@ fun ImagePager(
                 Text(
                     text = moodList[page],
                     style = MaterialTheme.typography.headlineLarge,
+                    color = Color.White,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(start = 30.dp, bottom = 16.dp)// Position the text
@@ -173,7 +174,7 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
                 text ="Mood Boost",
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.titleLarge
+                style = MaterialTheme.typography.titleMedium
             )
         },
         navigationIcon = {
@@ -211,7 +212,8 @@ fun OverallScore(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.primaryContainer),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
@@ -347,28 +349,32 @@ fun SuggestedMood(pagerState: PagerState,
                 .width(340.dp)
                 .height(80.dp),
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically, // Center the content vertically in the row
-                horizontalArrangement = Arrangement.SpaceBetween // Space between the text and button
+            Column(
+                modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
             ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically, // Center the content vertically in the row
+                    horizontalArrangement = Arrangement.SpaceBetween // Space between the text and button
+                ) {
 
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(moodList[suggested], style = MaterialTheme.typography.headlineMedium)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(moodList[suggested], style = MaterialTheme.typography.headlineMedium)
 
 
-                val coroutineScope = rememberCoroutineScope()
-                FilledButtonExample(onClick = {
-                    coroutineScope.launch {
-                        // Call scroll to on pagerState
-                        val animationSpec: AnimationSpec<Float> = TweenSpec(
-                            durationMillis = 800
-                        )
-                        pagerState.animateScrollToPage(suggested, animationSpec = animationSpec)
-                    }
-                }) // Button to the right
+                    val coroutineScope = rememberCoroutineScope()
+                    FilledButtonExample(onClick = {
+                        coroutineScope.launch {
+                            // Call scroll to on pagerState
+                            val animationSpec: AnimationSpec<Float> = TweenSpec(
+                                durationMillis = 800
+                            )
+                            pagerState.animateScrollToPage(suggested, animationSpec = animationSpec)
+                        }
+                    }) // Button to the right
+                }
             }
         }
     }

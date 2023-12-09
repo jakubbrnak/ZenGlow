@@ -1,8 +1,8 @@
 package com.example.zenglow.dialogs
 
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.example.zenglow.data.entities.Group
@@ -24,14 +24,14 @@ fun DeleteGroupDialog(
             onEvent(GroupEvent.HideDeleteDialog)
         },
         confirmButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 onEvent(GroupEvent.DeleteGroup(group))
             }) {
                 Text(text="Yes")
             }
         },
         dismissButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 onEvent(GroupEvent.HideDeleteDialog)
             }) {
                 Text(text="No")

@@ -1,3 +1,8 @@
+/*
+ FILE: Theme.kt
+ AUTHOR: Nikolas Nosál <xnosal01>
+ DESCRIPTION: Application dark/light themes
+*/
 @file:Suppress("DEPRECATION")
 
 package com.example.zenglow.ui.theme
@@ -52,46 +57,40 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
  */
 
 
-
+/* Dark theme */
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = Purple40,                     // Button On, Slider, Button Color [applies to material3]
+    onPrimary = TextWhite,                  // Additional text
+    primaryContainer = BodyBlackGrey,       // BodyElement
+    onPrimaryContainer = TextWhite,         // BodyElementText
+    inversePrimary = TextBlack,             // Special primary text
+
+    secondaryContainer = Purple120,         // Selected button
+    onSecondaryContainer = TextWhite,       // Selected button text
+
+    surface = BodyBlackGrey,                // TitleBar, ListItems, Modals, NotificationBar
+    onSurface = TextWhite,                  // TitleBarText, ListItemText, BackgroundText,
+    inverseSurface = BodyBlack,             // Background, BottomNavBar,
+
+    outline = OutlineGrey,                 // Button Outline, TextField Outline, Dividers
 )
 
+/* Light theme */
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,                     // Button On, Slider, Button Color
+    primary = Purple40,                     // Button On, Slider, Button Color [applies to material3]
     onPrimary = TextBlack,                  // Additional text
     primaryContainer = BodyWhite,           // BodyElement
-    onPrimaryContainer = RedFirst,          // BodyElementText
+    onPrimaryContainer = TextBlack,         // BodyElementText
     inversePrimary = TextWhite,             // Special primary text
-
-    secondary = BlueFirst,
-    onSecondary = BlueFirst,
 
     secondaryContainer = Purple80,          // Selected button
     onSecondaryContainer = TextBlack,       // Selected button text
-
-    tertiary = PurpleGrey80,                // Text Field
-    onTertiary = TextBlack,                 // Text Field text
-    tertiaryContainer = GreenFirst,
-    onTertiaryContainer = GreenFirst,
 
     surface = BodyWhite,                    // TitleBar, ListItems, Modals, NotificationBar
     onSurface = TextBlack,                  // TitleBarText, ListItemText, BackgroundText,
     inverseSurface = BodyWhiteTinted,       // Background, BottomNavBar,
 
-
-
-    /*  can be used for other purposes
-    surfaceContainer = YellowFirst,
-    inverseOnSurface = YellowFirst,
-     */
-
-    outline = OutlineBlack,         // Outline of Buttons/Dividers
-    /*  can be used for other purposes
-    outlineVariant = YellowFirst,
-    */
+    outline = OutlineBlack,                 // Button Outline, TextField Outline, Dividers
 )
 
 @Composable

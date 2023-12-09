@@ -4,8 +4,8 @@ package com.example.zenglow.dialogs
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,14 +32,14 @@ fun RenameGroupDialog(
         },
         confirmButton = {
 
-            Button(onClick = {
+            TextButton(onClick = {
                 onEvent(GroupEvent.RenameGroup(group))
             }) {
                 Text(text="Confirm")
             }
         },
         dismissButton = {
-            Button(onClick = {
+            TextButton(onClick = {
                 onEvent(GroupEvent.HideRenameDialog)
             }) {
                 Text(text="Cancel")
