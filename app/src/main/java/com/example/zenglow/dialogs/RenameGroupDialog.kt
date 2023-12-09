@@ -33,7 +33,9 @@ fun RenameGroupDialog(
         confirmButton = {
 
             TextButton(onClick = {
-                onEvent(GroupEvent.RenameGroup(group))
+                if (state.name != "") {
+                    onEvent(GroupEvent.RenameGroup(group))
+                }
             }) {
                 Text(text="Confirm")
             }
@@ -53,7 +55,7 @@ fun RenameGroupDialog(
                 TextField(
                     value = state.name,
                     onValueChange = {
-                        onEvent(GroupEvent.SetName(it))
+                            onEvent(GroupEvent.SetName(it))
                     },
                     placeholder = {
                         Text(text = "Group name")

@@ -15,7 +15,6 @@ import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,18 +35,13 @@ import androidx.compose.material.icons.outlined.Brightness1
 import androidx.compose.material.icons.outlined.BrightnessHigh
 import androidx.compose.material.icons.outlined.BrightnessLow
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.WbSunny
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -81,11 +75,8 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.zenglow.Screen
 import com.example.zenglow.data.entities.Device
-import com.example.zenglow.data.entities.Group
 import com.example.zenglow.events.DeviceEvent
-import com.example.zenglow.events.GroupEvent
 import com.example.zenglow.states.DeviceState
-import com.example.zenglow.states.GroupState
 import com.github.skydoves.colorpicker.compose.*
 
 
@@ -187,6 +178,7 @@ fun DeviceConfigTopBar(navController: NavController) {
     DESCRIPTION:    DeviceConfigScreen -> DeviceConfigRename
                     Modal for renaming a device
 */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceConfigRename(
     onDismissRequest: () -> Unit,
@@ -227,7 +219,9 @@ fun DeviceConfigRename(
                     var newName by remember { mutableStateOf("") }
                     TextField(
                         value = newName,
-                        onValueChange = { newName = it },
+                        onValueChange = {
+                            newName = it
+                        },
                         placeholder = { Text(text = "Device name") },
                         shape = RoundedCornerShape(25.dp),
                         singleLine = false,
@@ -258,9 +252,12 @@ fun DeviceConfigRename(
                         }
 
                         TextButton(onClick = {
-                            val updatedDevice = device.copy(displayName = newName)
-                            onEvent(DeviceEvent.UpdateDevice(updatedDevice))
-                            onDismissRequest()
+                            if (newName != "") {
+                                val updatedDevice = device.copy(displayName = newName)
+                                onEvent(DeviceEvent.UpdateDevice(updatedDevice))
+                                onDismissRequest()
+                            }
+
                         }) {
                             Text(
                                 text="Confirm",

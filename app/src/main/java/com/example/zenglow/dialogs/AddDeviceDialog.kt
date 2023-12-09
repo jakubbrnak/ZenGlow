@@ -37,7 +37,9 @@ fun AddDeviceDialog(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 TextButton(onClick = {
-                    onEvent(DeviceEvent.SaveDevice)
+                    if (state.displayName != "") {
+                        onEvent(DeviceEvent.SaveDevice)
+                    }
                 }) {
                     Text(text="Save device")
                 }

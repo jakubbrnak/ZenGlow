@@ -36,7 +36,9 @@ fun AddGroupDialog(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 TextButton(onClick = {
-                    onEvent(GroupEvent.SaveGroup)
+                    if (state.name != "") {
+                        onEvent(GroupEvent.SaveGroup)
+                    }
                 }) {
                   Text(text="Save group")
                 }
