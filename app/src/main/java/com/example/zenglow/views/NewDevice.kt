@@ -193,6 +193,7 @@ fun DeviceItem(
                     modifier = Modifier
                         .border(1.dp, Color.Black, CircleShape)
                         .clip(CircleShape)
+                        .background(Color.White)
                         .size(45.dp),
                     contentAlignment = Alignment.Center
                 ) {
