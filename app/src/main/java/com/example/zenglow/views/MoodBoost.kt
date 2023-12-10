@@ -47,6 +47,19 @@ import java.util.Date
 import java.util.Locale
 import kotlin.math.absoluteValue
 
+/*
+ FILE: MoodBoost.kt
+ AUTHOR: Jakub Brnak <xbrnak01>
+ PARTICIPATION: Jakub Brnak <xbrnak01>
+ DESCRIPTION: Page implementing MoodBoost functionality and its use cases. Contains pager showing
+ current mood and changing it by swiping between pages. Overall score dashboard shows current
+ score calculated from mood factor values and also progress bar that follows current score for better visualisation
+ and button that navigates to EditMood screen.
+ Card at the bottom of the screen shows suggested mood based on the conditions met after user updates
+ his mood factors values. If none of the conditions for mood factors are met, suggested mood
+ is decided according to the current time. Apply button automatically swipes mood pager to the
+ suggested.
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -63,6 +76,7 @@ fun MoodBoostScreen(navController: NavController,
     }
 }
 
+// Composable for main content in scaffold
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MainScrollContent(
@@ -93,15 +107,17 @@ fun MainScrollContent(
                             pageCount = {7},
                             initialPage = currentPage
                             )
+        // Launch coroutine for checking and processing mood changes
         LaunchedEffect(mypagerState) {
             // Collect from the a snapshotFlow reading the currentPage
             snapshotFlow { mypagerState.currentPage }.collect { page ->
-                // Do something with each page change, for example:
+                // With each page change, send event to change current mood value
                 val updatedAppState = appStateState.copy(currentMood = mypagerState.currentPage)
                 onAppStateEvent(AppStateEvent.UpdateAppState(updatedAppState))
             }
         }
 
+        // Load images for moods
         val imageList = listOf(R.drawable.mood_working3, R.drawable.mood_vibrant, R.drawable.mood_morning, R.drawable.fess_relax, R.drawable.mood_evening, R.drawable.mood_sleep, R.drawable.mood_neutral)
         val moodList = listOf("Focus", "Vibrant", "Morning", "Relax", "Evening", "Sleep", "Neutral")
 
@@ -123,6 +139,7 @@ fun MainScrollContent(
     }
 }
 
+// Composable for mood pager,
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ImagePager(
@@ -130,8 +147,6 @@ fun ImagePager(
         imageList: List<Int>,
         moodList: List<String>
     ){
-
-
     HorizontalPager(
         state = pagerState,
         contentPadding = PaddingValues(start = 46.dp, end = 24.dp, top = 20.dp)
@@ -159,13 +174,15 @@ fun ImagePager(
                     color = Color.White,
                     modifier = Modifier
                         .align(Alignment.BottomStart)
-                        .padding(start = 30.dp, bottom = 16.dp)// Position the text
+                        .padding(start = 30.dp, bottom = 16.dp)
                 )
             }
         }
     }
 }
 
+// Top App bar composable, similar to other pages
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
     CenterAlignedTopAppBar(
@@ -189,14 +206,14 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
     )
 }
 
-
-
+// Composable to show current score calculated from mood factors values
 @Composable
 fun OverallScore(
             navController: NavController,
             appStateState: AppStateState
         ){
 
+    // Formula to calculate overall score from
     val score = ((appStateState.energy*100)*0.3 + (100 - appStateState.stressIndex*100)*0.3 + ((appStateState.mentalState+1)*20)*0.3).toInt()
     Column(
         modifier = Modifier
@@ -245,8 +262,7 @@ fun OverallScore(
     }
 }
 
-
-
+// Composable for button that navigates to the EditMood screen
 @Composable
 fun EditButtonExample(onClick: () -> Unit) {
     Box(
@@ -266,13 +282,12 @@ fun EditButtonExample(onClick: () -> Unit) {
     }
 }
 
-
-@Preview
+// Composable to show current time
 @Composable
 fun TimeDisplay() {
     var currentTime by remember { mutableStateOf(getCurrentTime()) }
 
-    // Update the time every second
+    // Coroutine that updates time every second
     LaunchedEffect(Unit) {
         while (true) {
             currentTime = getCurrentTime()
@@ -297,10 +312,13 @@ fun TimeDisplay() {
     }
 }
 
+// Function to get current time
 fun getCurrentTime(): String {
     val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
     return sdf.format(Date())
 }
+
+//Composable for current mood container
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SuggestedMood(pagerState: PagerState,
@@ -308,6 +326,7 @@ fun SuggestedMood(pagerState: PagerState,
                   moodList: List<String>
                   ) {
 
+    // Current time tracking for deciding suggested mood
     var currentTime by remember { mutableStateOf(getCurrentTime().take(2)) }
     LaunchedEffect(Unit) {
         while (true) {
@@ -316,12 +335,15 @@ fun SuggestedMood(pagerState: PagerState,
         }
     }
 
+    // Variables which track mood factors from viewmodel
     val energy = appStateState.energy
     val stressLevel = appStateState.stressIndex
     val mental = appStateState.mentalState
 
+    // Default suggested mood
     var suggested = 6
 
+    // Conditions that change suggested mood based on the current mood factor values, their priorities and time of the day
     if(energy < 0.20 || currentTime.toInt() >= 22 || currentTime.toInt() < 6){
         suggested = 5
     } else if(stressLevel > 0.75){
@@ -356,14 +378,14 @@ fun SuggestedMood(pagerState: PagerState,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically, // Center the content vertically in the row
-                    horizontalArrangement = Arrangement.SpaceBetween // Space between the text and button
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(moodList[suggested], style = MaterialTheme.typography.headlineMedium)
 
-
+                    // Coroutine for automatic swiping animation when apply button pressed
                     val coroutineScope = rememberCoroutineScope()
                     FilledButtonExample(onClick = {
                         coroutineScope.launch {
@@ -373,13 +395,14 @@ fun SuggestedMood(pagerState: PagerState,
                             )
                             pagerState.animateScrollToPage(suggested, animationSpec = animationSpec)
                         }
-                    }) // Button to the right
+                    })
                 }
             }
         }
     }
 }
 
+// Composable for apply button
 @Composable
 fun FilledButtonExample(onClick: () -> Unit) {
     Box(
@@ -399,11 +422,12 @@ fun FilledButtonExample(onClick: () -> Unit) {
     }
 }
 
+// Composable for visual progress indicator, accepts float between 0 and 1
 @Composable
 fun DatabaseProgressIndicator(databaseProgress: Float) {
     LinearProgressIndicator(
         progress = {
-            databaseProgress // Use the database value directly
+            databaseProgress
         },
         modifier = Modifier.fillMaxWidth(),
     )

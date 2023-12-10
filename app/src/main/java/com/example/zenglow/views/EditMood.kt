@@ -41,6 +41,7 @@ import androidx.navigation.NavController
 import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.states.AppStateState
 
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EditMoodScreen(
@@ -57,6 +58,7 @@ fun EditMoodScreen(
     }
 }
 
+// Composable for main scaffold content organisation
 @Composable
 fun MainScrollContent(
     innerPadding: PaddingValues,
@@ -87,10 +89,7 @@ fun MainScrollContent(
     }
 }
 
-fun onClick() {
-    TODO("Not yet implemented")
-}
-
+// Composable for choosing mental state
 @Composable
 fun RadioButtonGroup(
     appStateState: AppStateState,
@@ -106,8 +105,9 @@ fun RadioButtonGroup(
             .padding(top = 40.dp),
     ) {
         Column(
-            Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxSize(),
         ) {
             Text(
                 text = "Mental State",
@@ -139,17 +139,17 @@ fun RadioButtonGroup(
                 Text(
                     text = "\uD83D\uDE10",
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 18.dp)
+                    modifier = Modifier.padding(start = 19.dp)
                 )
                 Text(
                     text = "\uD83D\uDE42",
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 18.dp)
+                    modifier = Modifier.padding(start = 17.dp)
                 )
                 Text(
                     text = "\uD83E\uDD29",
                     fontSize = 24.sp,
-                    modifier = Modifier.padding(start = 17.dp)
+                    modifier = Modifier.padding(start = 16.dp)
                 )
             }
             Row(
@@ -178,6 +178,7 @@ fun RadioButtonGroup(
     }
 }
 
+// Composable for physical energy slider
 @Composable
 fun SliderBoxPhysical(
     appStateState: AppStateState,
@@ -194,7 +195,9 @@ fun SliderBoxPhysical(
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxSize(),
         ) {
             Text(
                 text = "Physical energy",
@@ -225,6 +228,7 @@ fun SliderBoxPhysical(
     }
 }
 
+// Composable for stress slier box
 @Composable
 fun SliderBoxStress(
     appStateState: AppStateState,
@@ -241,7 +245,9 @@ fun SliderBoxStress(
         Column(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.background(MaterialTheme.colorScheme.primaryContainer),
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxSize(),
         ) {
             Text(
                 text = "Stress Level",
@@ -272,6 +278,7 @@ fun SliderBoxStress(
     }
 }
 
+// Composable for top app bar, similar than other pages
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
