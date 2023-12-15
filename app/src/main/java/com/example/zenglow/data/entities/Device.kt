@@ -3,7 +3,11 @@ package com.example.zenglow.data.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
+/*
+ FILE: Device.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Device entity object
+ */
 @Entity(tableName = "device")
 data class Device(
     @ColumnInfo(name = "onState", defaultValue = "1")

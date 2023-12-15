@@ -16,7 +16,11 @@ import com.example.zenglow.ui.theme.ZenGlowTheme
 import com.example.zenglow.viewModels.AppStateViewModel
 import com.example.zenglow.viewModels.DeviceViewModel
 import com.example.zenglow.viewModels.GroupViewModel
-
+/*
+ FILE: MainActivity.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Initialization class for the app
+ */
 class MainActivity : ComponentActivity() {
     lateinit var navController: NavHostController
     private val db by lazy {

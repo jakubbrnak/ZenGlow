@@ -47,6 +47,7 @@ class GroupViewModel(
 
                 _state.update { it.copy(
                     isAddingGroup =  false,
+                    isDeleting = -1,
                     name = ""
                 ) }
             }

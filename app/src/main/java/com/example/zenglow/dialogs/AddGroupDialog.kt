@@ -31,10 +31,6 @@ fun AddGroupDialog(
            onEvent(GroupEvent.HideDeleteDialog)
         },
         confirmButton = {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterEnd
-            ) {
                 TextButton(onClick = {
                     if (state.name != "") {
                         onEvent(GroupEvent.SaveGroup)
@@ -42,7 +38,13 @@ fun AddGroupDialog(
                 }) {
                   Text(text="Save group")
                 }
-            }
+        },
+        dismissButton = {
+                TextButton(onClick = {
+                        onEvent(GroupEvent.HideCreateDialog)
+                }) {
+                    Text(text="Cancel")
+                }
         },
         title = { Text(text= "Add Group")},
         text = {

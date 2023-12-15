@@ -3,7 +3,11 @@ package com.example.zenglow.data.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-
+/*
+ FILE: AppState.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: AppState entity object
+ */
 @Entity(tableName = "appState")
 data class AppState(
     @ColumnInfo(name = "brightness", defaultValue = "1.0")

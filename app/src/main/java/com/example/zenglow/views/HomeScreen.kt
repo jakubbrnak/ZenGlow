@@ -708,6 +708,10 @@ fun VerticalTemperatureSlider(
     )
 }
 
+/*
+    DESCRIPTION:    HomeScreen -> calculateBackgroundColor
+                    Function that returns blended colors for the brightness and temperature sliders
+*/
 @Composable
 private fun calculateBackgroundColor(value: Float, color1: Color, color2: Color): Int {
     val color1Int = argb(
@@ -728,7 +732,10 @@ private fun calculateBackgroundColor(value: Float, color1: Color, color2: Color)
     return ColorUtils.blendARGB(color1Int, color2Int, ratio)
 }
 
-
+/*
+    DESCRIPTION:    HomeScreen -> homeColorConvert
+                    Converts color data into a Color value
+*/
 @Composable
 fun homeColorConvert(hue: Color, brightness: Float, temperature: Float): Color {
 

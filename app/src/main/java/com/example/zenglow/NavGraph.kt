@@ -18,7 +18,11 @@ import com.example.zenglow.views.EditMoodScreen
 import com.example.zenglow.views.HomeScreen
 import com.example.zenglow.views.NewDeviceScreen
 import com.example.zenglow.views.SettingsScreen
-
+/*
+ FILE: NavGraph.kt
+ AUTHOR: Daniel Blaško <xblask05>
+ DESCRIPTION: Navigation composable
+ */
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
