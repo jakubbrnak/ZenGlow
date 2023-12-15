@@ -98,48 +98,52 @@ fun DeviceConfigScreen(
     } ?: run {
         deviceId = -1
     }
-    val deviceById: Device = state.devices.find { it.deviceId == deviceId }
-        ?:  Device(deviceId = -1, groupId = -1, color = 0xFFFFFF, temperature = 0.0f, brightness = 0.0f, displayName = "")
+    val deviceByIdNullable: Device? = state.devices.find { it.deviceId == deviceId }
+    if (deviceByIdNullable == null) { }
+    else {
+        val deviceById = deviceByIdNullable !!
 
-    var renameDialog by remember { mutableStateOf(false) }
-    var deleteDialog by remember { mutableStateOf(false) }
+        var renameDialog by remember { mutableStateOf(false) }
+        var deleteDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = { DeviceConfigTopBar(navController = navController) }
-    ) { innerPadding ->
-        Column( // Page content
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.inverseSurface),
-        ) {
-            DeviceConfigName(
-                device = deviceById,
-                onRenameButtonClick = { renameDialog = true },
-                onDeleteButtonClick = { deleteDialog = true }
-            )
-            DeviceConfigEditPicker(
-                device = deviceById,
-                onDeviceEvent = onEvent
-            )
-            DeviceConfigDoneButton(navController = navController)
-        }
-        if (renameDialog) {
-            DeviceConfigRename(
-                onDismissRequest = { renameDialog = false },
-                device = deviceById,
-                onEvent = onEvent,
-                state = state
-            )
-        }
-        if(deleteDialog) {
-            DeviceConfigDelete(
-                onDismissRequest = { deleteDialog = false },
-                device = deviceById,
-                onEvent = onEvent,
-                state = state,
-                navController = navController
-            )
+        Scaffold(
+            topBar = { DeviceConfigTopBar(navController = navController) }
+        ) { innerPadding ->
+            Column(
+                // Page content
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .background(MaterialTheme.colorScheme.inverseSurface),
+            ) {
+                DeviceConfigName(
+                    device = deviceById,
+                    onRenameButtonClick = { renameDialog = true },
+                    onDeleteButtonClick = { deleteDialog = true }
+                )
+                DeviceConfigEditPicker(
+                    device = deviceById,
+                    onDeviceEvent = onEvent
+                )
+                DeviceConfigDoneButton(navController = navController)
+            }
+            if (renameDialog) {
+                DeviceConfigRename(
+                    onDismissRequest = { renameDialog = false },
+                    device = deviceById,
+                    onEvent = onEvent,
+                    state = state
+                )
+            }
+            if (deleteDialog) {
+                DeviceConfigDelete(
+                    onDismissRequest = { deleteDialog = false },
+                    device = deviceById,
+                    onEvent = onEvent,
+                    state = state,
+                    navController = navController
+                )
+            }
         }
     }
 }
