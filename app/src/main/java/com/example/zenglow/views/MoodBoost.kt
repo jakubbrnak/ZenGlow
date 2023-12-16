@@ -134,8 +134,6 @@ fun MainScrollContent(
         )
         OverallScore(navController, appStateState)
         SuggestedMood(mypagerState,appStateState, moodList)
-
-
     }
 }
 

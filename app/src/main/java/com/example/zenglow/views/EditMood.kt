@@ -42,6 +42,15 @@ import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.states.AppStateState
 
 
+/*
+ FILE: EditMood.kt
+ AUTHOR: Jakub Brnak <xbrnak01>
+ PARTICIPATION: Jakub Brnak <xbrnak01>
+ DESCRIPTION: Page for changing vlaues of mood factors using interactive
+ elements such as sliders and radio buttos.
+ */
+
+//Main screen composable
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EditMoodScreen(
@@ -49,10 +58,8 @@ fun EditMoodScreen(
     appStateState: AppStateState,
     onAppStateEvent: (AppStateEvent) -> Unit
     ) {
-
     Scaffold(
         topBar = { MoodBoostTopBar { navController.navigateUp() } },
-
         ) {
             innerPadding -> MainScrollContent(innerPadding, navController, appStateState, onAppStateEvent)
     }
@@ -125,7 +132,7 @@ fun RadioButtonGroup(
 
             )
             {
-                // Create 5 radio buttons
+                // Emojis for radio buttons
                 Text(
                     text = "\uD83D\uDE14",
                     fontSize = 24.sp,
@@ -302,8 +309,3 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
         }
     )
 }
-
-
-
-
-
