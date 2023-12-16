@@ -38,6 +38,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.zenglow.Screen
 import com.example.zenglow.events.AppStateEvent
 import com.example.zenglow.states.AppStateState
 
@@ -45,7 +46,7 @@ import com.example.zenglow.states.AppStateState
 /*
  FILE: EditMood.kt
  AUTHOR: Jakub Brnak <xbrnak01>
- PARTICIPATION: Jakub Brnak <xbrnak01>
+
  DESCRIPTION: Page for changing vlaues of mood factors using interactive
  elements such as sliders and radio buttos.
  */
@@ -85,7 +86,10 @@ fun MainScrollContent(
         SliderBoxPhysical(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
         SliderBoxStress(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
         RadioButtonGroup(appStateState = appStateState, onAppStateEvent = onAppStateEvent)
-        Button(onClick = { navController.navigateUp()},
+        Button(onClick = {
+            navController.popBackStack()
+            navController.popBackStack()
+            navController.navigate("${Screen.MoodBoost.route}")},
                     modifier = Modifier.padding(top = 10.dp)
             ) {
             Text(
@@ -299,13 +303,7 @@ fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = onGoBackClicked) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    modifier = Modifier.size(36.dp),
-                    contentDescription = "Return back to home-page"
-                )
-            }
+
         }
     )
 }

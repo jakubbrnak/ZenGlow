@@ -67,7 +67,6 @@ fun MoodBoostScreen(navController: NavController,
                     appStateState: AppStateState,
                     onAppStateEvent: (AppStateEvent) -> Unit,
                     ) {
-
     Scaffold(
         topBar = { MoodBoostTopBar { navController.navigateUp()}},
 
@@ -212,7 +211,7 @@ fun OverallScore(
         ){
 
     // Formula to calculate overall score from
-    val score = ((appStateState.energy*100)*0.3 + (100 - appStateState.stressIndex*100)*0.3 + ((appStateState.mentalState+1)*20)*0.3).toInt()
+    val score = ((appStateState.energy*100)*0.33 + (100 - appStateState.stressIndex*100)*0.33 + ((appStateState.mentalState+1)*20)*0.33).toInt()
     Column(
         modifier = Modifier
             .padding(top = 10.dp),
