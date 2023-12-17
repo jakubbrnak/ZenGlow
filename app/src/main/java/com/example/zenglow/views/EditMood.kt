@@ -48,7 +48,7 @@ import com.example.zenglow.states.AppStateState
  AUTHOR: Jakub Brnak <xbrnak01>
 
  DESCRIPTION: Page for changing vlaues of mood factors using interactive
- elements such as sliders and radio buttos.
+              elements such as sliders and radio buttos.
  */
 
 //Main screen composable
@@ -60,7 +60,7 @@ fun EditMoodScreen(
     onAppStateEvent: (AppStateEvent) -> Unit
     ) {
     Scaffold(
-        topBar = { MoodBoostTopBar { navController.navigateUp() } },
+        topBar = { MoodBoostTopBar() },
         ) {
             innerPadding -> MainScrollContent(innerPadding, navController, appStateState, onAppStateEvent)
     }
@@ -292,7 +292,7 @@ fun SliderBoxStress(
 // Composable for top app bar, similar than other pages
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoodBoostTopBar(onGoBackClicked: () -> Unit) {
+fun MoodBoostTopBar() {
     CenterAlignedTopAppBar(
         title = {
             Text(

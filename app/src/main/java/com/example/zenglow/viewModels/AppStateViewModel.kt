@@ -18,7 +18,7 @@ import kotlinx.coroutines.launch
 
 /*
  FILE: AppStateViewModel.kt
- AUTHOR: Jakub Brnák <xbrnak01>
+ AUTHOR: Jakub Brnak <xbrnak01>
  DESCRIPTION: ViewModel for handling frontend requests and backend operations of the app's state, mainly for the moodBoost functionality
               and overall brightness and temperature levels
 

@@ -52,13 +52,13 @@ import kotlin.math.absoluteValue
  AUTHOR: Jakub Brnak <xbrnak01>
  PARTICIPATION: Jakub Brnak <xbrnak01>
  DESCRIPTION: Page implementing MoodBoost functionality and its use cases. Contains pager showing
- current mood and changing it by swiping between pages. Overall score dashboard shows current
- score calculated from mood factor values and also progress bar that follows current score for better visualisation
- and button that navigates to EditMood screen.
- Card at the bottom of the screen shows suggested mood based on the conditions met after user updates
- his mood factors values. If none of the conditions for mood factors are met, suggested mood
- is decided according to the current time. Apply button automatically swipes mood pager to the
- suggested.
+              current mood and changing it by swiping between pages. Overall score dashboard shows current
+              score calculated from mood factor values and also progress bar that follows current score for better visualisation
+              and button that navigates to EditMood screen.
+              Card at the bottom of the screen shows suggested mood based on the conditions met after user updates
+              his mood factors values. If none of the conditions for mood factors are met, suggested mood
+              is decided according to the current time. Apply button automatically swipes mood pager to the
+              suggested.
  */
 @OptIn(ExperimentalFoundationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
