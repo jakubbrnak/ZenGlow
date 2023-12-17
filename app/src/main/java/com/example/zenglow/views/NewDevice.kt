@@ -124,6 +124,7 @@ fun NewDeviceScrollContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
+                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp, bottomStart=16.dp, bottomEnd = 16.dp))
                         .heightIn(0.dp, maxHeight)
                 ) {
                     LazyColumn(
@@ -193,7 +194,7 @@ fun DeviceItem(
                     modifier = Modifier
                         .border(1.dp, Color.Black, CircleShape)
                         .clip(CircleShape)
-                        .background(Color.White)
+                        .background(color = homeColorConvert(Color(device.color), device.brightness, device.temperature) )
                         .size(45.dp),
                     contentAlignment = Alignment.Center
                 ) {
