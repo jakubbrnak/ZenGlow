@@ -1,10 +1,10 @@
 # ITU-Projekt-ZenGlow
 
-### Autory
+### Autori
 
 - **Jakub Brnák** - <xbrnak01@stud.fit.vutbr.cz>
 - **Nikolas Nosál** - <xnosal01@stud.fit.vutbr.cz>
-- **Daniel Blaško** - TODO
+- **Daniel Blaško** - <xblask05@stud.fit.vutbr.cz>
 
 
 ### Úvod 
@@ -14,14 +14,14 @@ Aplikácia pre jednoduché a intuitívne ovládanie domáceho a záhradného osv
 
 ### Spustenie aplikácie
 
-Pre spustenie aplikácie je potrebné otvoriť priložený projekt vo vývojovom prostredí Android Studio(pri vývoji bola použitá verzia Hedgehog). Pri inicializácií projektu prostredie automaticky stiahne a integruje moduly potrebné pre emuláciu systému android a spustenie aplikácie. Prostredie Android Studio takisto uomžňuje aplikáciu nahrať do vášho fyzického zariadenia so systémom Android pripojením cez USB. Je však pred tým potrebné túto možnosť na zariadení povoliť (Allow USB debugging) a následne po úspešnom pripojení v Android Studio zvoliť vaše zariadenie v zozname dostupných zariadení pre testovanie.
+Pre spustenie aplikácie je potrebné otvoriť priložený projekt vo vývojovom prostredí Android Studio (pri vývoji bola použitá verzia Hedgehog). Pri inicializácii projektu prostredie automaticky stiahne a integruje moduly potrebné pre emuláciu systému Android a spustenie aplikácie. Prostredie Android Studio takisto uomžňuje aplikáciu nahrať do vášho fyzického zariadenia so systémom Android pripojením cez USB. Je však predtým potrebné túto možnosť na zariadení povoliť (Allow USB debugging) a následne po úspešnom pripojení v Android Studio zvoliť vaše zariadenie v zozname dostupných zariadení pre testovanie.
 
 
 ### Dokuemntácia
 - Popis návrhu aplikácie - [Návrh-Aplikácie](docs/návrh-aplikácie.pdf)
 - (Jakub Brnák) implementácia - [Technická-Správa-xbrank01](docs/technická-správa-xbrnak01.pdf)
 - (Nikolas Nosál) implementácia - [Technická-Správa-xnosal01](docs/technická-správa-xnosal01.pdf) 
-- (Daniel Blaško) implementácia - TODO
+- (Daniel Blaško) implementácia - [Technická-Správa-xblask05](docs/technická-správa-xblask05.pdf) 
 
 
 ### Ukážky
