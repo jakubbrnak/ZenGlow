@@ -25,7 +25,7 @@ Pre spustenie aplikácie je potrebné otvoriť priložený projekt vo vývojovom
 
 
 ### Ukážky
-| Main-Screen                      | Device-Config                        | Mood-Boost                            |
+| Mood-Boost                       | Device-Config                        | Main-Screen                           |
 | :------------------------------: | :----------------------------------: | :-----------------------------------: |
 | ![MainScreen](docs/itu_main.jpg) | ![DeviceConfig](docs/itu_config.jpg) | ![MoodBoost](docs/itu_mood_boost.jpg) |
 
